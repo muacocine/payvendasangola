@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 20% 15%;
+
+    --card: 0 0% 99%;
+    --card-foreground: 220 20% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 15%;
+
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 20%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 14% 90%;
+    --input: 220 14% 94%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.75rem;
+
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --info: 24 95% 53%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Brand colors */
+    --brand-orange: 24 95% 53%;
+    --brand-navy: 220 50% 20%;
+    --brand-light: 0 0% 98%;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(24 95% 60%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.95), hsl(0 0% 98% / 0.9));
+    
+    --shadow-primary: 0 0 30px hsl(24 95% 53% / 0.2), 0 0 60px hsl(24 95% 53% / 0.1);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.06);
+    --shadow-soft: 0 2px 12px hsl(0 0% 0% / 0.04);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 15%;
+    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 220 14% 90%;
+    --sidebar-ring: 24 95% 53%;
+  }
+
+  .dark {
+    --background: 220 30% 8%;
+    --foreground: 210 40% 98%;
+    --card: 220 30% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 30% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 25% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 25% 20%;
+    --input: 220 25% 18%;
+    --ring: 24 95% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+  }
+
+  .glass-card-hover:hover {
+    @apply border-primary/40;
+    box-shadow: var(--shadow-primary);
+  }
+
+  .glass-nav {
+    @apply bg-white/80 backdrop-blur-2xl border-t border-border/30;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .brand-text {
+    @apply text-primary;
+  }
+
+  .brand-gradient {
+    background: var(--gradient-primary);
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-xl transition-all duration-300;
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.35);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px hsl(var(--primary) / 0.45);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground font-medium px-6 py-3 rounded-xl border border-border transition-all duration-300;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-muted border-primary/30;
+  }
+}
+
+@layer utilities {
+  .animate-pulse-primary {
+    animation: pulse-primary 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-primary {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.5), 0 0 80px hsl(var(--primary) / 0.2);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, hsl(220 14% 90% / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(220 14% 90% / 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+}
