@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
-import biolosLogo from "@/assets/biolos-logo.png";
+import payvendasLogo from "@/assets/payvendas-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -80,8 +80,8 @@ interface Trade {
   created_at: string;
 }
 
-// Admin email
-const ADMIN_EMAIL = 'isaacmuaco582@gmail.com';
+// Admin emails
+const ADMIN_EMAILS = ['isaacmuaco582@gmail.com', 'isaacmilagre9@gmail.com'];
 
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -382,8 +382,8 @@ const Admin = () => {
                 <ArrowLeft size={20} />
               </Button>
             </Link>
-            <img src={biolosLogo} alt="BIOLOS" className="h-7" />
-            <span className="text-amber-500 font-bold text-sm px-2 py-0.5 bg-amber-500/20 rounded">ADMIN</span>
+            <img src={payvendasLogo} alt="PayVendas" className="h-8" />
+            <span className="text-primary font-bold text-sm px-2 py-0.5 bg-primary/20 rounded">ADMIN</span>
           </div>
           <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-slate-400 hover:text-white">
             <LogOut size={20} />

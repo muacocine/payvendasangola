@@ -13,10 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ProfessionalTradingChart } from "@/components/trading/ProfessionalTradingChart";
 import { useAuth } from "@/hooks/useAuth";
-import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import biolosLogo from "@/assets/biolos-logo.png";
+import payvendasLogo from "@/assets/payvendas-logo.png";
 
 const Trading = () => {
   const { user, profile } = useAuth();
@@ -66,11 +65,11 @@ const Trading = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e14] flex flex-col">
+    <div className="min-h-screen bg-[#0a0e14] flex flex-col pb-20 md:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#0c1018] border-b border-white/5">
         <div className="flex items-center gap-3">
-          <img src={biolosLogo} alt="BIOLOS" className="h-8" />
+          <img src={payvendasLogo} alt="PayVendas" className="h-8" />
         </div>
         
         <div className="flex items-center gap-3">
@@ -209,8 +208,6 @@ const Trading = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <BottomNavigation />
     </div>
   );
 };

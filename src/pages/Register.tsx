@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Shield, Loader2, Globe, CheckCircle, Gift } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Loader2, Gift, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,37 +92,45 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-secondary/30 flex relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute top-0 left-0 w-full h-full">
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-      </div>
+  const benefits = [
+    "Bônus de 1.000 AOA na carteira",
+    "Venda PDFs e receba 85% do valor", 
+    "Carteira digital gratuita",
+    "Pagamentos via PayPay África"
+  ];
 
-      {/* Left side - Branding (hidden on mobile) */}
-      <div className="hidden lg:flex flex-1 items-center justify-center relative">
-        <div className="text-center max-w-md px-8">
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary to-orange-600 relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/10 rounded-full" />
+        </div>
+        
+        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12">
           <motion.img 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             src={payvendasLogo} 
             alt="PayVendas" 
-            className="h-20 mx-auto mb-8" 
+            className="h-20 mb-8 brightness-0 invert" 
           />
-          <motion.h2 
+          <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-3xl font-display font-bold text-foreground mb-4"
+            className="text-3xl font-display font-bold text-white mb-4 text-center"
           >
             Comece a Vender Hoje
-          </motion.h2>
+          </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-muted-foreground text-lg mb-8"
+            className="text-white/80 text-lg max-w-md text-center mb-10"
           >
             Crie sua conta em minutos e comece a vender seus e-books.
           </motion.p>
@@ -132,246 +140,243 @@ const Register = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="space-y-4 text-left"
+            className="space-y-4 w-full max-w-sm"
           >
-            {[
-              "Conta demo gratuita com 10.000 AOA",
-              "Venda PDFs e receba 85% do valor",
-              "Suporte 24/7",
-              "Pagamentos via Multicaixa e PayPay"
-            ].map((benefit, i) => (
-              <div key={i} className="flex items-center gap-3 text-muted-foreground">
-                <CheckCircle size={18} className="text-primary" />
-                <span className="text-sm">{benefit}</span>
+            {benefits.map((benefit, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white/10 rounded-xl p-4">
+                <CheckCircle className="text-white shrink-0" size={20} />
+                <span className="text-white font-medium">{benefit}</span>
               </div>
             ))}
           </motion.div>
         </div>
       </div>
 
-      {/* Right side - Register form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-8 relative z-10">
+      {/* Right Panel - Register Form */}
+      <div className="flex-1 flex items-center justify-center bg-white p-6 lg:p-8 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md py-8"
         >
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-6 text-center">
-            <img src={payvendasLogo} alt="PayVendas" className="h-16 mx-auto" />
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-6">
+            <img src={payvendasLogo} alt="PayVendas" className="h-12 mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm">Vende seus e-books e factura mais</p>
           </div>
 
-          {/* Card container */}
-          <div className="bg-white/90 backdrop-blur-xl border border-border/50 rounded-2xl p-6 lg:p-8 shadow-xl">
-            <div className="text-center mb-6">
-              <h1 className="font-display text-2xl font-bold text-foreground mb-2">
-                Criar Conta
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Junte-se à comunidade PayVendas
-              </p>
+          {/* Welcome text */}
+          <div className="mb-6">
+            <h2 className="text-2xl lg:text-3xl font-display font-bold text-foreground mb-2">
+              Criar Conta
+            </h2>
+            <p className="text-muted-foreground">
+              Junte-se a milhares de vendedores
+            </p>
+          </div>
+
+          {referralCode && referrerName && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 rounded-xl bg-primary/10 border border-primary/30 flex items-center gap-3"
+            >
+              <Gift className="w-6 h-6 text-primary shrink-0" />
+              <div>
+                <p className="text-sm text-primary font-bold">Indicado por {referrerName}</p>
+                <p className="text-xs text-muted-foreground">Você foi convidado para a plataforma!</p>
+              </div>
+            </motion.div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-foreground font-medium">
+                Nome Completo
+              </Label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Seu nome completo"
+                  value={formData.name}
+                  onChange={(e) => updateField("name", e.target.value)}
+                  className="pl-12 h-12 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
+                  required
+                  disabled={loading}
+                />
+              </div>
             </div>
 
-            {referralCode && referrerName && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30 flex items-center gap-3"
-              >
-                <Gift className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-sm text-primary font-medium">Indicado por {referrerName}</p>
-                  <p className="text-xs text-muted-foreground">Você foi convidado para a plataforma!</p>
-                </div>
-              </motion.div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground text-sm font-medium">
-                  Nome Completo
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Seu nome completo"
-                    value={formData.name}
-                    onChange={(e) => updateField("name", e.target.value)}
-                    className="pl-10 h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
-                    required
-                    disabled={loading}
-                  />
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground font-medium">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={formData.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  className="pl-12 h-12 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
+                  required
+                  disabled={loading}
+                />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground text-sm font-medium">
-                  Email
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={formData.email}
-                    onChange={(e) => updateField("email", e.target.value)}
-                    className="pl-10 h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-foreground text-sm font-medium">
-                  Telefone
-                </Label>
-                <div className="flex gap-2">
-                  <Select 
-                    value={selectedCountry.code} 
-                    onValueChange={(val) => setSelectedCountry(ALLOWED_COUNTRIES.find(c => c.code === val) || ALLOWED_COUNTRIES[0])}
-                  >
-                    <SelectTrigger className="w-28 h-11 bg-secondary border-border text-foreground rounded-xl">
-                      <SelectValue>
+            <div className="space-y-2">
+              <Label className="text-foreground font-medium">
+                Telefone
+              </Label>
+              <div className="flex gap-2">
+                <Select 
+                  value={selectedCountry.code} 
+                  onValueChange={(val) => setSelectedCountry(ALLOWED_COUNTRIES.find(c => c.code === val) || ALLOWED_COUNTRIES[0])}
+                >
+                  <SelectTrigger className="w-28 h-12 bg-secondary/50 border-border text-foreground rounded-xl">
+                    <SelectValue>
+                      <span className="flex items-center gap-2">
+                        <span>{selectedCountry.flag}</span>
+                        <span className="text-sm">{selectedCountry.code}</span>
+                      </span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-border">
+                    {ALLOWED_COUNTRIES.map((country) => (
+                      <SelectItem 
+                        key={country.code} 
+                        value={country.code}
+                        className="text-foreground hover:bg-secondary"
+                      >
                         <span className="flex items-center gap-2">
-                          <span>{selectedCountry.flag}</span>
-                          <span className="text-sm">{selectedCountry.code}</span>
+                          <span>{country.flag}</span>
+                          <span>{country.name}</span>
+                          <span className="text-muted-foreground">{country.code}</span>
                         </span>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {ALLOWED_COUNTRIES.map((country) => (
-                        <SelectItem 
-                          key={country.code} 
-                          value={country.code}
-                          className="text-foreground hover:bg-secondary"
-                        >
-                          <span className="flex items-center gap-2">
-                            <span>{country.flag}</span>
-                            <span>{country.name}</span>
-                            <span className="text-muted-foreground">{country.code}</span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="relative flex-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="9XX XXX XXX"
-                      value={formData.phone}
-                      onChange={(e) => updateField("phone", e.target.value.replace(/\D/g, '').slice(0, 9))}
-                      className="pl-10 h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="relative flex-1">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="9XX XXX XXX"
+                    value={formData.phone}
+                    onChange={(e) => updateField("phone", e.target.value.replace(/\D/g, '').slice(0, 9))}
+                    className="pl-12 h-12 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
+                    required
+                    disabled={loading}
+                  />
                 </div>
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground text-sm font-medium">
+                <Label htmlFor="password" className="text-foreground font-medium">
                   Senha
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Mín. 6 caracteres"
                     value={formData.password}
                     onChange={(e) => updateField("password", e.target.value)}
-                    className="pl-10 pr-10 h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
+                    className="pl-12 h-12 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
                     required
                     disabled={loading}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-foreground text-sm font-medium">
-                  Confirmar Senha
+                <Label htmlFor="confirmPassword" className="text-foreground font-medium">
+                  Confirmar
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                   <Input
                     id="confirmPassword"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Repita sua senha"
+                    placeholder="Repita a senha"
                     value={formData.confirmPassword}
                     onChange={(e) => updateField("confirmPassword", e.target.value)}
-                    className="pl-10 h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
+                    className="pl-12 h-12 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
                     required
                     disabled={loading}
                   />
                 </div>
               </div>
-
-              <div className="flex items-start gap-2">
-                <input 
-                  type="checkbox" 
-                  className="rounded border-border bg-secondary mt-1 w-4 h-4 text-primary focus:ring-primary" 
-                  required 
-                />
-                <span className="text-xs text-muted-foreground">
-                  Li e aceito os{" "}
-                  <Link to="/termos" className="text-primary hover:underline">
-                    Termos e Condições
-                  </Link>{" "}
-                  e a{" "}
-                  <Link to="/privacidade" className="text-primary hover:underline">
-                    Política de Privacidade
-                  </Link>
-                </span>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/30" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" size={20} />
-                ) : (
-                  <>
-                    Criar Conta
-                    <ArrowRight className="ml-2" size={18} />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-4 flex items-center gap-2 justify-center text-xs text-muted-foreground">
-              <Shield className="text-primary" size={14} />
-              <span>Verificação KYC necessária para transações</span>
             </div>
 
-            <div className="mt-4 text-center">
-              <p className="text-muted-foreground text-sm">
-                Já tem uma conta?{" "}
-                <Link to="/login" className="text-primary hover:underline font-semibold">
-                  Entrar
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-sm text-primary hover:underline"
+            >
+              {showPassword ? "Ocultar senhas" : "Mostrar senhas"}
+            </button>
+
+            <div className="flex items-start gap-3 pt-2">
+              <input 
+                type="checkbox" 
+                className="rounded border-border bg-secondary mt-1 w-5 h-5 text-primary focus:ring-primary" 
+                required 
+              />
+              <span className="text-sm text-muted-foreground">
+                Li e aceito os{" "}
+                <Link to="/termos" className="text-primary hover:underline font-medium">
+                  Termos e Condições
+                </Link>{" "}
+                e a{" "}
+                <Link to="/privacidade" className="text-primary hover:underline font-medium">
+                  Política de Privacidade
                 </Link>
-              </p>
+              </span>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all shadow-lg shadow-primary/30" 
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={24} />
+              ) : (
+                <>
+                  Criar Conta Grátis
+                  <ArrowRight className="ml-2" size={20} />
+                </>
+              )}
+            </Button>
+          </form>
+
+          {/* Bonus notice */}
+          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-orange-500/10 border border-primary/20">
+            <div className="flex items-center gap-3">
+              <Gift className="text-primary shrink-0" size={24} />
+              <div>
+                <p className="font-bold text-foreground">Bônus de Boas-Vindas!</p>
+                <p className="text-sm text-muted-foreground">Ganhe 1.000 AOA grátis na sua carteira</p>
+              </div>
             </div>
           </div>
 
-          {/* Country notice */}
-          <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
-            <Globe size={12} />
-            <span>Disponível apenas para Angola e Moçambique</span>
+          <div className="mt-6 text-center">
+            <p className="text-muted-foreground">
+              Já tem uma conta?{" "}
+              <Link to="/login" className="text-primary hover:underline font-bold">
+                Entrar
+              </Link>
+            </p>
           </div>
         </motion.div>
       </div>

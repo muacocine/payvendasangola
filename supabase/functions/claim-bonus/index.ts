@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
         type: "bonus",
         amount: bonusAmount,
         status: "completed",
-        method: "BIOLOS",
+        method: "PayVendas",
         description: "Bônus de boas-vindas",
       });
 
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         type: "bonus",
         amount: bonusAmount,
         status: "completed",
-        method: "BIOLOS",
+        method: "PayVendas",
         description: "Bônus de instalação do app",
       });
 
