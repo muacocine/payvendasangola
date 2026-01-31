@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 import payvendasLogo from "@/assets/payvendas-logo.png";
 import paypayLogo from "@/assets/paypay-logo.webp";
 import multicaixaLogo from "@/assets/multicaixa-logo.webp";
@@ -99,30 +98,29 @@ const Wallet = () => {
       return;
     }
     
-    const totalBalance = (profile.balance || 0) + (profile.bonus_balance || 0);
-    if (totalBalance < 100) {
-      toast.error("Saldo insuficiente. Taxa de ativação: 100 AOA");
-      return;
-    }
-    
     setActivatingWallet(true);
     
     try {
-      const { data: session } = await supabase.auth.getSession();
+      // Free wallet activation - no fee required
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          wallet_activated: true,
+          wallet_activation_date: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
       
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/payment-webhook/activate-wallet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.session?.access_token}`
-        }
+      if (error) throw error;
+      
+      // Record activation transaction (free)
+      await supabase.from('transactions').insert({
+        user_id: user.id,
+        type: 'wallet_activation',
+        amount: 0,
+        status: 'completed',
+        method: 'PayVendas',
+        description: 'Ativação de carteira gratuita'
       });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Erro ao ativar carteira');
-      }
       
       toast.success("Carteira ativada com sucesso!");
       refreshProfile();
@@ -328,7 +326,7 @@ const Wallet = () => {
   const canActivate = profile?.kyc_status === 'approved' && !isWalletActive;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
       {/* Header */}
       <div className="px-4 pt-6 pb-4 bg-white border-b border-border">
         <h1 className="font-display text-xl font-bold text-foreground mb-1">Carteira</h1>
@@ -497,7 +495,7 @@ const Wallet = () => {
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Ativar Cartão Virtual</h3>
                     <p className="text-xs text-muted-foreground">
-                      Ative sua carteira para depositar, levantar e receber chuvas. Taxa única de 100 AOA.
+                      Ative sua carteira gratuitamente para depositar, levantar e receber pagamentos.
                     </p>
                   </div>
                 </div>
@@ -512,7 +510,7 @@ const Wallet = () => {
                   onClick={activateWallet}
                   disabled={!canActivate || activatingWallet}
                 >
-                  {activatingWallet ? 'Ativando...' : 'Ativar Carteira (100 AOA)'}
+                  {activatingWallet ? 'Ativando...' : 'Ativar Carteira Grátis'}
                 </Button>
               </motion.div>
             )}
@@ -584,7 +582,7 @@ const Wallet = () => {
         )}
       </div>
 
-      <BottomNavigation />
+      
 
       {/* Deposit Modal */}
       <AnimatePresence>

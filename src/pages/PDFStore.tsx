@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 
 interface PDFProduct {
   id: string;
@@ -223,7 +222,7 @@ const PDFStore = () => {
   const canPublish = profile?.kyc_status === 'approved';
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
       {/* Header */}
       <div className="px-4 pt-6 pb-4 bg-white border-b border-border">
         <div className="flex items-center justify-between">
@@ -367,9 +366,6 @@ const PDFStore = () => {
           </div>
         )}
       </div>
-
-      <BottomNavigation />
-
       {/* Create Product Modal */}
       <AnimatePresence>
         {showCreateModal && (

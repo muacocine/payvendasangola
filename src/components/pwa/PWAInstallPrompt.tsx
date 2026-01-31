@@ -67,7 +67,7 @@ export const PWAInstallPrompt = () => {
                   <Smartphone className="text-white" size={24} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-white text-sm">Instalar BIOLOS</h3>
+                  <h3 className="font-bold text-white text-sm">Instalar PayVendas</h3>
                   <p className="text-white/80 text-xs mt-0.5">
                     Instale o app e ganhe <span className="font-bold text-yellow-300">500 AOA</span> de bônus!
                   </p>
@@ -106,7 +106,7 @@ export const PWAInstallPrompt = () => {
 
               <h2 className="text-2xl font-bold text-white mb-2">Parabéns! 🎉</h2>
               <p className="text-slate-400 mb-6">
-                Você instalou o app BIOLOS! Resgate agora seu bônus de <span className="text-yellow-400 font-bold">500 AOA</span>
+                Você instalou o app PayVendas! Resgate agora seu bônus de <span className="text-yellow-400 font-bold">500 AOA</span>
               </p>
 
               <Button

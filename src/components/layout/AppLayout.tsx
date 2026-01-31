@@ -2,7 +2,6 @@ import { ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { AppHeader } from "./AppHeader";
-import { BottomNavigation } from "../navigation/BottomNavigation";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -31,12 +30,11 @@ export const AppLayout = ({ children, title, showSettings }: AppLayoutProps) => 
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
       <AppHeader title={title} showSettings={showSettings} />
       <main className="container mx-auto px-4 py-4 max-w-2xl">
         {children}
       </main>
-      <BottomNavigation />
     </div>
   );
 };

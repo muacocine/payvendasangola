@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Shield, Globe } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,170 +31,172 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-secondary/30 flex relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute top-0 left-0 w-full h-full">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-      </div>
-
-      {/* Left side - Branding (hidden on mobile) */}
-      <div className="hidden lg:flex flex-1 items-center justify-center relative">
-        <div className="text-center max-w-md px-8">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Panel - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary to-orange-600 relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/10 rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-white/20 rounded-full" />
+        </div>
+        
+        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12 text-center">
           <motion.img 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             src={payvendasLogo} 
             alt="PayVendas" 
-            className="h-20 mx-auto mb-8" 
+            className="h-24 mb-8 brightness-0 invert" 
           />
-          <motion.h2 
+          <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-3xl font-display font-bold text-foreground mb-4"
+            className="text-4xl font-display font-bold text-white mb-4"
           >
-            Vende seus e-books e factura mais
-          </motion.h2>
+            Vende seus e-books<br />e factura mais
+          </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-muted-foreground text-lg"
+            className="text-white/80 text-lg max-w-md"
           >
-            Aceda à sua conta e comece a vender seus conteúdos digitais.
+            A plataforma líder de vendas digitais em Angola e Moçambique. 
+            PayPay África, dashboard completo e suporte direto.
           </motion.p>
           
-          {/* Trust indicators */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex items-center justify-center gap-6 mt-12"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 flex items-center gap-8"
           >
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield size={18} className="text-primary" />
-              <span className="text-sm">Seguro</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Globe size={18} className="text-primary" />
-              <span className="text-sm">Angola & Moçambique</span>
-            </div>
+            {[
+              { value: "5K+", label: "Vendedores" },
+              { value: "85%", label: "Lucro" },
+              { value: "24/7", label: "Suporte" },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <div className="text-3xl font-bold text-white">{stat.value}</div>
+                <div className="text-white/60 text-sm">{stat.label}</div>
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>
 
-      {/* Right side - Login form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
+      {/* Right Panel - Login Form */}
+      <div className="flex-1 flex items-center justify-center bg-white p-6 lg:p-12">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="w-full max-w-md"
         >
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <img src={payvendasLogo} alt="PayVendas" className="h-16 mx-auto" />
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <img src={payvendasLogo} alt="PayVendas" className="h-14 mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm">Vende seus e-books e factura mais</p>
           </div>
 
-          {/* Card container */}
-          <div className="bg-white/90 backdrop-blur-xl border border-border/50 rounded-2xl p-8 shadow-xl">
-            <div className="text-center mb-8">
-              <h1 className="font-display text-2xl font-bold text-foreground mb-2">
-                Iniciar Sessão
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Aceda à sua conta PayVendas
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground text-sm font-medium">
-                  Email
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground text-sm font-medium">
-                  Senha
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Sua senha"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-12 bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:border-primary rounded-xl"
-                    required
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <input 
-                    type="checkbox" 
-                    className="rounded border-border bg-secondary w-4 h-4 text-primary focus:ring-primary" 
-                  />
-                  Lembrar-me
-                </label>
-                <Link to="/recuperar-senha" className="text-sm text-primary hover:underline font-medium">
-                  Esqueceu?
-                </Link>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary/30" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" size={20} />
-                ) : (
-                  <>
-                    Entrar
-                    <ArrowRight className="ml-2" size={18} />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-muted-foreground text-sm">
-                Não tem conta?{" "}
-                <Link to="/registro" className="text-primary hover:underline font-semibold">
-                  Criar conta
-                </Link>
-              </p>
-            </div>
+          {/* Welcome text */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">
+              Bem-vindo de volta!
+            </h2>
+            <p className="text-muted-foreground">
+              Entre na sua conta para continuar
+            </p>
           </div>
 
-          {/* Country notice */}
-          <div className="mt-6 text-center">
-            <p className="text-[11px] text-muted-foreground">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground font-medium">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-12 h-14 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary rounded-xl text-base"
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-foreground font-medium">
+                Senha
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-12 pr-12 h-14 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary rounded-xl text-base"
+                  required
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-border bg-secondary w-5 h-5 text-primary focus:ring-primary" 
+                />
+                Lembrar-me
+              </label>
+              <Link to="/recuperar-senha" className="text-sm text-primary hover:underline font-medium">
+                Esqueceu a senha?
+              </Link>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all shadow-lg shadow-primary/30" 
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={24} />
+              ) : (
+                <>
+                  Entrar
+                  <ArrowRight className="ml-2" size={20} />
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-muted-foreground">
+              Não tem conta?{" "}
+              <Link to="/registro" className="text-primary hover:underline font-bold">
+                Criar conta grátis
+              </Link>
+            </p>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-border text-center">
+            <p className="text-xs text-muted-foreground">
               Disponível apenas para Angola e Moçambique
             </p>
           </div>

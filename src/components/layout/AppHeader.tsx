@@ -3,7 +3,7 @@ import { LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import biolosLogo from "@/assets/biolos-logo.png";
+import payvendasLogo from "@/assets/payvendas-logo.png";
 
 interface AppHeaderProps {
   title?: string;
@@ -23,7 +23,7 @@ export const AppHeader = ({ title, showSettings = false }: AppHeaderProps) => {
     <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border">
       <div className="flex items-center justify-between h-14 px-4">
         <Link to="/trading" className="flex items-center gap-2">
-          <img src={biolosLogo} alt="BIOLOS" className="h-7" />
+          <img src={payvendasLogo} alt="PayVendas" className="h-8" />
         </Link>
 
         {title && (
