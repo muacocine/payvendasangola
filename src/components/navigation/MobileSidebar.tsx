@@ -47,13 +47,13 @@ export const MobileSidebar = () => {
 
   return (
     <>
-      {/* Floating Menu Button - Only show for logged in users */}
+      {/* Menu Button - Top Left Corner */}
       {user && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 flex items-center justify-center md:hidden"
+          className="fixed top-4 left-4 z-40 w-12 h-12 bg-white border border-border text-foreground rounded-xl shadow-lg flex items-center justify-center md:hidden hover:bg-secondary transition-colors"
         >
-          <Menu size={24} />
+          <Menu size={22} />
         </button>
       )}
 
