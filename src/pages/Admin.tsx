@@ -350,8 +350,8 @@ const Admin = () => {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen bg-[#0a0f18] flex items-center justify-center">
-        <div className="text-[#1e88e5] animate-pulse">Carregando...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary animate-pulse font-display font-bold">Carregando...</div>
       </div>
     );
   }
@@ -372,127 +372,135 @@ const Admin = () => {
   const pendingPdfs = pdfProducts.filter(p => p.status === 'pending');
 
   return (
-    <div className="min-h-screen bg-[#0a0f18]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0d1421]/95 backdrop-blur-xl border-b border-[#1e2a3a]">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-border shadow-sm">
         <div className="flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-3">
             <Link to="/trading">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                 <ArrowLeft size={20} />
               </Button>
             </Link>
             <img src={payvendasLogo} alt="PayVendas" className="h-8" />
-            <span className="text-primary font-bold text-sm px-2 py-0.5 bg-primary/20 rounded">ADMIN</span>
+            <span className="text-white font-display font-bold text-xs px-3 py-1 bg-primary rounded-full shadow-sm">ADMIN</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-slate-400 hover:text-white">
+          <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
             <LogOut size={20} />
           </Button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 max-w-6xl">
+      <main className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Page Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="font-display text-xl font-bold text-white">
+          <h1 className="font-display text-2xl font-bold text-foreground">
             Painel Administrativo
           </h1>
-          <p className="text-slate-400 text-sm">
-            Gestão completa da plataforma BIOLOS
+          <p className="text-muted-foreground text-sm">
+            Gestão completa da plataforma PayVendas
           </p>
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <GlassCard className="p-3 bg-[#0d1421] border-[#1e2a3a]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-400 text-xs">Usuários</p>
-                <p className="text-xl font-bold text-white">{stats.totalUsers}</p>
+                <p className="text-muted-foreground text-xs font-medium">Usuários</p>
+                <p className="text-2xl font-display font-bold text-foreground">{stats.totalUsers}</p>
               </div>
-              <Users className="text-[#1e88e5]" size={20} />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Users className="text-primary" size={20} />
+              </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-3 bg-[#0d1421] border-[#1e2a3a]">
+          <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-400 text-xs">KYC Pendente</p>
-                <p className="text-xl font-bold text-amber-400">{stats.pendingKyc}</p>
+                <p className="text-muted-foreground text-xs font-medium">KYC Pendente</p>
+                <p className="text-2xl font-display font-bold text-warning">{stats.pendingKyc}</p>
               </div>
-              <Clock className="text-amber-500" size={20} />
+              <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center">
+                <Clock className="text-warning" size={20} />
+              </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-3 bg-[#0d1421] border-[#1e2a3a]">
+          <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-400 text-xs">Comissões</p>
-                <p className="text-xl font-bold text-emerald-400">{stats.totalCommissions.toLocaleString('pt-AO')}</p>
+                <p className="text-muted-foreground text-xs font-medium">Comissões</p>
+                <p className="text-2xl font-display font-bold text-success">{stats.totalCommissions.toLocaleString('pt-AO')}</p>
               </div>
-              <DollarSign className="text-emerald-500" size={20} />
+              <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                <DollarSign className="text-success" size={20} />
+              </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-3 bg-[#0d1421] border-[#1e2a3a]">
+          <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-400 text-xs">Trades Reais</p>
-                <p className="text-xl font-bold text-[#1e88e5]">{stats.totalTrades}</p>
+                <p className="text-muted-foreground text-xs font-medium">Trades Reais</p>
+                <p className="text-2xl font-display font-bold text-primary">{stats.totalTrades}</p>
               </div>
-              <BarChart3 className="text-[#1e88e5]" size={20} />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <BarChart3 className="text-primary" size={20} />
+              </div>
             </div>
           </GlassCard>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full bg-[#0d1421] border border-[#1e2a3a] mb-4">
-            <TabsTrigger value="users" className="flex-1 data-[state=active]:bg-[#1e88e5]">
-              <Users size={14} className="mr-1" />
+          <TabsList className="w-full bg-secondary border border-border mb-4 p-1 rounded-xl">
+            <TabsTrigger value="users" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg font-medium">
+              <Users size={14} className="mr-1.5" />
               Usuários
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex-1 data-[state=active]:bg-[#1e88e5]">
-              <ArrowDownUp size={14} className="mr-1" />
+            <TabsTrigger value="transactions" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg font-medium">
+              <ArrowDownUp size={14} className="mr-1.5" />
               Transações
               {pendingTransactions.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                <span className="ml-1.5 px-2 py-0.5 bg-destructive text-white text-xs rounded-full font-bold">
                   {pendingTransactions.length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="pdfs" className="flex-1 data-[state=active]:bg-[#1e88e5]">
-              <FileText size={14} className="mr-1" />
+            <TabsTrigger value="pdfs" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg font-medium">
+              <FileText size={14} className="mr-1.5" />
               PDFs
               {pendingPdfs.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                <span className="ml-1.5 px-2 py-0.5 bg-destructive text-white text-xs rounded-full font-bold">
                   {pendingPdfs.length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="trades" className="flex-1 data-[state=active]:bg-[#1e88e5]">
-              <TrendingUp size={14} className="mr-1" />
+            <TabsTrigger value="trades" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-white rounded-lg font-medium">
+              <TrendingUp size={14} className="mr-1.5" />
               Trades
             </TabsTrigger>
           </TabsList>
 
           {/* Search */}
-          <GlassCard className="mb-4 bg-[#0d1421] border-[#1e2a3a]">
+          <GlassCard className="mb-4">
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                 <Input
-                  placeholder="Buscar..."
+                  placeholder="Buscar usuários, transações..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 h-10 bg-[#1e2a3a] border-[#2a3a4a] text-white"
+                  className="pl-9 h-11 bg-secondary border-border text-foreground"
                 />
               </div>
-              <Button variant="outline" size="icon" onClick={fetchAllData} className="h-10 w-10 border-[#2a3a4a]">
+              <Button variant="outline" size="icon" onClick={fetchAllData} className="h-11 w-11 border-border hover:bg-secondary">
                 <RefreshCw size={16} />
               </Button>
             </div>

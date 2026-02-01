@@ -227,6 +227,38 @@ const Wallet = () => {
     const realBalance = (profile.balance || 0) - bonusBalance;
     const totalProfit = profile.total_profit || 0;
 
+    // Check if user has ever made a real deposit
+    const { data: deposits } = await supabase
+      .from('transactions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('type', 'deposit')
+      .eq('status', 'completed')
+      .limit(1);
+
+    const hasRealDeposit = deposits && deposits.length > 0;
+
+    // User can only withdraw if they have deposited real money AND used it in trading
+    if (!hasRealDeposit) {
+      toast.error("Você precisa fazer um depósito real antes de poder sacar");
+      return;
+    }
+
+    // Check if user has traded with real money
+    const { data: realTrades } = await supabase
+      .from('trades')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('is_demo', false)
+      .limit(1);
+
+    const hasTradedReal = realTrades && realTrades.length > 0;
+
+    if (!hasTradedReal && bonusBalance > 0 && withdrawAmount > realBalance) {
+      toast.error("Para sacar o bônus, você precisa usar o saldo em trading primeiro");
+      return;
+    }
+
     if (realBalance < withdrawAmount && totalProfit <= 0) {
       toast.error("Você precisa ter lucro em trading para sacar o saldo de bônus");
       return;
