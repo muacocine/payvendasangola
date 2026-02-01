@@ -6,6 +6,7 @@ interface GlassCardProps extends HTMLMotionProps<"div"> {
   className?: string;
   hover?: boolean;
   glow?: boolean;
+  variant?: 'default' | 'orange';
 }
 
 export const GlassCard = ({ 
@@ -13,12 +14,13 @@ export const GlassCard = ({
   className, 
   hover = false, 
   glow = false,
+  variant = 'default',
   ...props 
 }: GlassCardProps) => {
   return (
     <motion.div
       className={cn(
-        "glass-card p-6",
+        variant === 'orange' ? 'glass-card-orange' : 'glass-card',
         hover && "glass-card-hover cursor-pointer",
         glow && "animate-glow-pulse",
         className

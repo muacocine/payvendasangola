@@ -1,92 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
 @layer base {
   :root {
+    /* PayVendas Orange & White Theme */
     --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
-
-    --card: 0 0% 99%;
-    --card-foreground: 220 20% 15%;
-
+    --foreground: 24 10% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 24 10% 10%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
-
+    --popover-foreground: 24 10% 10%;
+    
+    /* Primary Orange - PayVendas Brand */
     --primary: 24 95% 53%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 20%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 45%;
-
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
-
+    
+    --secondary: 24 20% 96%;
+    --secondary-foreground: 24 10% 20%;
+    
+    --muted: 24 10% 95%;
+    --muted-foreground: 24 5% 45%;
+    
+    --accent: 24 80% 95%;
+    --accent-foreground: 24 95% 40%;
+    
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 220 14% 90%;
-    --input: 220 14% 94%;
-    --ring: 24 95% 53%;
-
-    --radius: 0.75rem;
-
-    /* Status colors */
-    --success: 142 76% 36%;
+    
+    --success: 142 72% 45%;
     --success-foreground: 0 0% 100%;
+    
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 0%;
-    --info: 24 95% 53%;
-    --info-foreground: 0 0% 100%;
+    --warning-foreground: 0 0% 100%;
+    
+    --border: 24 15% 90%;
+    --input: 24 15% 90%;
+    --ring: 24 95% 53%;
+    
+    --radius: 0.875rem;
     
     /* Brand colors */
     --brand-orange: 24 95% 53%;
-    --brand-navy: 220 50% 20%;
-    --brand-light: 0 0% 98%;
+    --brand-orange-light: 24 95% 95%;
     
-    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(24 95% 60%));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.95), hsl(0 0% 98% / 0.9));
+    --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(24 90% 58%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(24 20% 98%));
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.95), hsl(24 20% 99% / 0.9));
     
-    --shadow-primary: 0 0 30px hsl(24 95% 53% / 0.2), 0 0 60px hsl(24 95% 53% / 0.1);
+    --shadow-primary: 0 8px 30px hsl(24 95% 53% / 0.25);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.06);
     --shadow-soft: 0 2px 12px hsl(0 0% 0% / 0.04);
-
+    
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 20% 15%;
+    --sidebar-foreground: 24 10% 10%;
     --sidebar-primary: 24 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 220 20% 20%;
-    --sidebar-border: 220 14% 90%;
+    --sidebar-accent: 24 80% 95%;
+    --sidebar-accent-foreground: 24 95% 40%;
+    --sidebar-border: 24 15% 90%;
     --sidebar-ring: 24 95% 53%;
   }
 
   .dark {
-    --background: 220 30% 8%;
-    --foreground: 210 40% 98%;
-    --card: 220 30% 10%;
-    --card-foreground: 210 40% 98%;
-    --popover: 220 30% 10%;
-    --popover-foreground: 210 40% 98%;
+    --background: 24 10% 7%;
+    --foreground: 0 0% 95%;
+    
+    --card: 24 10% 10%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 24 10% 10%;
+    --popover-foreground: 0 0% 95%;
+    
     --primary: 24 95% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 25% 18%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 220 25% 18%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 220 25% 20%;
-    --input: 220 25% 18%;
+    
+    --secondary: 24 10% 15%;
+    --secondary-foreground: 0 0% 90%;
+    
+    --muted: 24 10% 18%;
+    --muted-foreground: 24 5% 60%;
+    
+    --accent: 24 80% 20%;
+    --accent-foreground: 24 95% 80%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 72% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --border: 24 10% 20%;
+    --input: 24 10% 20%;
     --ring: 24 95% 53%;
+    
+    --sidebar-background: 24 10% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 24 80% 20%;
+    --sidebar-accent-foreground: 24 95% 80%;
+    --sidebar-border: 24 10% 20%;
+    --sidebar-ring: 24 95% 53%;
   }
 }
 
@@ -94,34 +116,62 @@
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
   }
-
+  
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
   }
 }
 
 @layer components {
+  /* Glass Card - White glassmorphism with subtle orange accent */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
-    box-shadow: var(--shadow-card);
+    @apply rounded-2xl border border-border/50 p-6;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--card) / 0.98) 100%
+    );
+    backdrop-filter: blur(20px);
+    box-shadow: 
+      0 4px 24px -4px hsl(var(--foreground) / 0.06),
+      0 0 0 1px hsl(var(--border) / 0.5),
+      inset 0 1px 0 hsl(0 0% 100% / 0.6);
   }
-
+  
   .glass-card-hover {
-    @apply glass-card transition-all duration-300;
+    @apply transition-all duration-300;
   }
-
+  
   .glass-card-hover:hover {
-    @apply border-primary/40;
-    box-shadow: var(--shadow-primary);
+    @apply border-primary/30;
+    box-shadow: 
+      0 8px 40px -8px hsl(var(--primary) / 0.15),
+      0 0 0 1px hsl(var(--primary) / 0.2),
+      inset 0 1px 0 hsl(0 0% 100% / 0.6);
+    transform: translateY(-2px);
+  }
+  
+  /* Glass Card Orange Variant */
+  .glass-card-orange {
+    @apply rounded-2xl p-6;
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.08) 0%, 
+      hsl(var(--primary) / 0.03) 100%
+    );
+    border: 1px solid hsl(var(--primary) / 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+      0 4px 24px -4px hsl(var(--primary) / 0.12),
+      inset 0 1px 0 hsl(0 0% 100% / 0.4);
   }
 
   .glass-nav {
-    @apply bg-white/80 backdrop-blur-2xl border-t border-border/30;
+    @apply bg-white/90 backdrop-blur-2xl border-t border-border/30;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
   }
 

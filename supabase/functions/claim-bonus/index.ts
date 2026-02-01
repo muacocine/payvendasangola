@@ -10,7 +10,7 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const SIGNUP_BONUS = 1000; // 1000 AOA for new users
-const PWA_INSTALL_BONUS = 500; // 500 AOA for PWA install
+// PWA bonus removed - only signup bonus remains
 
 Deno.serve(async (req) => {
   // Handle CORS
@@ -83,38 +83,6 @@ Deno.serve(async (req) => {
         user_id: user.id,
         type: "bonus",
         title: "Bônus Recebido!",
-        message: bonusMessage,
-      });
-
-    } else if (bonus_type === "pwa_install" && !profile.pwa_bonus_claimed) {
-      // Claim PWA install bonus
-      bonusAmount = PWA_INSTALL_BONUS;
-      bonusMessage = `Bônus de instalação de ${PWA_INSTALL_BONUS} AOA creditado!`;
-
-      await supabase
-        .from("profiles")
-        .update({
-          pwa_installed: true,
-          pwa_install_date: new Date().toISOString(),
-          pwa_bonus_claimed: true,
-          bonus_balance: (profile.bonus_balance || 0) + bonusAmount,
-          balance: (profile.balance || 0) + bonusAmount,
-        })
-        .eq("user_id", user.id);
-
-      await supabase.from("transactions").insert({
-        user_id: user.id,
-        type: "bonus",
-        amount: bonusAmount,
-        status: "completed",
-        method: "PayVendas",
-        description: "Bônus de instalação do app",
-      });
-
-      await supabase.from("notifications").insert({
-        user_id: user.id,
-        type: "bonus",
-        title: "Bônus de App!",
         message: bonusMessage,
       });
 

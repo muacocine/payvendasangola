@@ -39,15 +39,23 @@ export const MobileSidebar = () => {
     setIsOpen(false);
   };
 
+  // Hide sidebar on landing, login, and register pages
+  const hiddenRoutes = ['/', '/login', '/registro'];
+  const shouldHide = hiddenRoutes.includes(location.pathname);
+
+  if (shouldHide) return null;
+
   return (
     <>
-      {/* Floating Menu Button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 flex items-center justify-center md:hidden"
-      >
-        <Menu size={24} />
-      </button>
+      {/* Floating Menu Button - Only show for logged in users */}
+      {user && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 flex items-center justify-center md:hidden"
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
       {/* Sidebar Overlay */}
       <AnimatePresence>
