@@ -2,12 +2,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Wallet, 
-  AlertTriangle,
   TrendingUp,
   TrendingDown,
   Share2,
-  X,
-  Zap
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,25 +16,29 @@ import { toast } from "sonner";
 import payvendasLogo from "@/assets/payvendas-logo.png";
 
 const Trading = () => {
-  const { user, profile } = useAuth();
-  const [isDemoMode, setIsDemoMode] = useState(true);
-  const [demoBalance, setDemoBalance] = useState(10000);
+  const { user, profile, refreshProfile } = useAuth();
   const [showPostPrompt, setShowPostPrompt] = useState(false);
   const [lastTradeResult, setLastTradeResult] = useState<{ isWin: boolean; amount: number; pair: string } | null>(null);
   const [postContent, setPostContent] = useState("");
   const [isPosting, setIsPosting] = useState(false);
 
-  const currentBalance = isDemoMode ? demoBalance : (profile?.balance || 0);
+  const currentBalance = profile?.balance || 0;
 
   const handleTradeComplete = (isWin: boolean, amount: number, pair: string) => {
-    if (!isDemoMode && user && profile?.kyc_status === 'approved') {
+    if (user && profile?.kyc_status === 'approved') {
       setLastTradeResult({ isWin, amount, pair });
       setPostContent(isWin 
-        ? `Acabei de lucrar ${amount.toLocaleString('pt-AO')} AOA em ${pair}! 🚀💰`
-        : `Perdi ${amount.toLocaleString('pt-AO')} AOA em ${pair} 📉 Faz parte do jogo!`
+        ? `Acabei de lucrar ${amount.toLocaleString('pt-AO')} AOA em ${pair}!`
+        : `Perdi ${amount.toLocaleString('pt-AO')} AOA em ${pair}. Faz parte do jogo!`
       );
       setShowPostPrompt(true);
+      refreshProfile();
     }
+  };
+
+  const handleBalanceChange = (newBalance: number) => {
+    // Balance is updated in real-time via the chart component
+    refreshProfile();
   };
 
   const handlePublishResult = async () => {
@@ -82,57 +84,20 @@ const Trading = () => {
             <span className="text-white/50 text-xs">AOA</span>
           </div>
           
-          {/* Mode Toggle */}
-          <button
-            onClick={() => setIsDemoMode(!isDemoMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-              isDemoMode 
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
-                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-            }`}
-          >
-            <Zap size={14} />
-            {isDemoMode ? 'DEMO' : 'REAL'}
-          </button>
+          {/* Real Mode Badge */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <TrendingUp size={14} />
+            REAL
+          </div>
         </div>
       </div>
-
-      {/* Risk Warning */}
-      <div className="px-4 py-2 bg-rose-500/10 border-b border-rose-500/20">
-        <div className="flex items-center justify-center gap-2">
-          <AlertTriangle className="text-rose-400" size={14} />
-          <p className="text-xs text-rose-300">
-            <span className="font-semibold">AVISO:</span> Trading envolve riscos. Invista com responsabilidade.
-          </p>
-        </div>
-      </div>
-
-      {/* Demo Mode Banner */}
-      <AnimatePresence>
-        {isDemoMode && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20"
-          >
-            <p className="text-xs text-center text-amber-400">
-              🎮 Modo Demo - Pratique sem risco com dinheiro virtual
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Trading Chart - Full height */}
       <div className="flex-1 min-h-0 pb-16">
         <ProfessionalTradingChart 
-          isDemoMode={isDemoMode} 
+          isDemoMode={false} 
           balance={currentBalance}
-          onBalanceChange={(newBalance) => {
-            if (isDemoMode) {
-              setDemoBalance(newBalance);
-            }
-          }}
+          onBalanceChange={handleBalanceChange}
           onTradeComplete={handleTradeComplete}
         />
       </div>

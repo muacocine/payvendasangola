@@ -8,12 +8,9 @@ import {
   Maximize2,
   Minimize2,
   Activity,
-  BarChart2,
   Wifi,
   WifiOff,
   Clock,
-  Target,
-  Zap,
   DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,27 +36,28 @@ interface ProfessionalTradingChartProps {
 }
 
 const tradingPairs = [
-  { symbol: "EUR/USD", finnhubSymbol: "OANDA:EUR_USD", name: "Euro/Dólar", basePrice: 1.08542, flag: "🇪🇺" },
-  { symbol: "GBP/USD", finnhubSymbol: "OANDA:GBP_USD", name: "Libra/Dólar", basePrice: 1.26780, flag: "🇬🇧" },
-  { symbol: "USD/JPY", finnhubSymbol: "OANDA:USD_JPY", name: "Dólar/Yen", basePrice: 149.50, flag: "🇯🇵" },
-  { symbol: "BTC/USD", finnhubSymbol: "BINANCE:BTCUSDT", name: "Bitcoin", basePrice: 67500, flag: "₿" },
-  { symbol: "ETH/USD", finnhubSymbol: "BINANCE:ETHUSDT", name: "Ethereum", basePrice: 3450, flag: "Ξ" },
-  { symbol: "XAU/USD", finnhubSymbol: "OANDA:XAU_USD", name: "Ouro", basePrice: 2340, flag: "🪙" },
+  { symbol: "EUR/USD", finnhubSymbol: "OANDA:EUR_USD", name: "Euro/Dólar", basePrice: 1.08542, flag: "EU" },
+  { symbol: "GBP/USD", finnhubSymbol: "OANDA:GBP_USD", name: "Libra/Dólar", basePrice: 1.26780, flag: "GB" },
+  { symbol: "USD/JPY", finnhubSymbol: "OANDA:USD_JPY", name: "Dólar/Yen", basePrice: 149.50, flag: "JP" },
+  { symbol: "BTC/USD", finnhubSymbol: "BINANCE:BTCUSDT", name: "Bitcoin", basePrice: 67500, flag: "BTC" },
+  { symbol: "ETH/USD", finnhubSymbol: "BINANCE:ETHUSDT", name: "Ethereum", basePrice: 3450, flag: "ETH" },
+  { symbol: "XAU/USD", finnhubSymbol: "OANDA:XAU_USD", name: "Ouro", basePrice: 2340, flag: "XAU" },
 ];
 
 const tradingDurations = [
-  { label: "3s", seconds: 3, multiplier: 2.50, payout: 250 },
-  { label: "5s", seconds: 5, multiplier: 1.95, payout: 195 },
-  { label: "15s", seconds: 15, multiplier: 1.92, payout: 192 },
-  { label: "30s", seconds: 30, multiplier: 1.88, payout: 188 },
-  { label: "1m", seconds: 60, multiplier: 1.85, payout: 185 },
-  { label: "5m", seconds: 300, multiplier: 1.82, payout: 182 },
+  { label: "3s", seconds: 3, multiplier: 91.67, payout: 9067 },
+  { label: "5s", seconds: 5, multiplier: 2.95, payout: 295 },
+  { label: "15s", seconds: 15, multiplier: 2.50, payout: 250 },
+  { label: "30s", seconds: 30, multiplier: 2.20, payout: 220 },
+  { label: "1m", seconds: 60, multiplier: 2.00, payout: 200 },
+  { label: "5m", seconds: 300, multiplier: 1.85, payout: 185 },
 ];
 
 const MIN_INVEST = 50;
 const MAX_INVEST = 5000000;
-const ADMIN_COMMISSION = 0.15;
-const ADMIN_USER_ID = 'f928c5cb-2be8-4c49-b1d6-b9f61c2f08fb';
+const ADMIN_COMMISSION = 0.70; // 70% for admin on big wins
+const BIG_WIN_THRESHOLD = 5000000; // 5 million AOA
+const ADMIN_MASTER_ID = '4dd2713f-0d80-4644-9a44-70a0acc7e6e5'; // isaacmuaco582@gmail.com
 
 export const ProfessionalTradingChart = ({ 
   isDemoMode = false, 
@@ -187,7 +185,6 @@ export const ProfessionalTradingChart = ({
       const lastCandle = prev[prev.length - 1];
       const now = Date.now();
       
-      // New candle every 5 seconds
       if (now - lastCandle.time > 5000) {
         const newCandle: CandleData = {
           time: now,
@@ -199,7 +196,6 @@ export const ProfessionalTradingChart = ({
         };
         return [...prev.slice(1), newCandle];
       } else {
-        // Update current candle
         const updatedCandle: CandleData = {
           ...lastCandle,
           high: Math.max(lastCandle.high, newPrice),
@@ -271,25 +267,33 @@ export const ProfessionalTradingChart = ({
     const priceDiff = currentPrice - entryPrice;
     const isWin = tradeDirection === 'call' ? priceDiff > 0 : priceDiff < 0;
     const profitMultiplier = selectedDuration.multiplier - 1;
-    const profit = isWin ? investAmount * profitMultiplier : -investAmount;
+    const grossProfit = isWin ? investAmount * profitMultiplier : -investAmount;
     
-    setShowResult({ isWin, amount: Math.abs(isWin ? profit : investAmount) });
+    let netProfit = grossProfit;
+    let adminCut = 0;
+    
+    // Apply 70/30 split for big wins (over 5 million or 100k+)
+    if (isWin && grossProfit >= 100000) {
+      adminCut = grossProfit * ADMIN_COMMISSION; // 70% for admin
+      netProfit = grossProfit * (1 - ADMIN_COMMISSION); // 30% for user
+    }
+    
+    setShowResult({ isWin, amount: Math.abs(isWin ? netProfit : investAmount) });
     setIsTrading(false);
     setTradeDirection(null);
     
-    const newBalance = balance + profit;
+    const newBalance = balance + netProfit;
     
     if (onBalanceChange) {
       onBalanceChange(newBalance);
     }
 
     if (onTradeComplete) {
-      onTradeComplete(isWin, Math.abs(profit), selectedPair.symbol);
+      onTradeComplete(isWin, Math.abs(netProfit), selectedPair.symbol);
     }
 
-    if (!isDemoMode && user) {
-      const commission = !isWin ? investAmount * ADMIN_COMMISSION : 0;
-      
+    // Real trading - always save to database
+    if (user) {
       try {
         await supabase.from('trades').insert({
           user_id: user.id,
@@ -301,13 +305,13 @@ export const ProfessionalTradingChart = ({
           duration_seconds: selectedDuration.seconds,
           is_demo: false,
           is_win: isWin,
-          profit_loss: profit,
-          admin_commission: commission,
+          profit_loss: netProfit,
+          admin_commission: adminCut,
           completed_at: new Date().toISOString()
         });
 
         const currentProfit = profile?.total_profit || 0;
-        const newTotalProfit = currentProfit + profit;
+        const newTotalProfit = currentProfit + netProfit;
         
         await supabase.from('profiles')
           .update({ 
@@ -316,34 +320,46 @@ export const ProfessionalTradingChart = ({
           })
           .eq('user_id', user.id);
 
-        if (isWin && profit > 0) {
+        // Process referral commission for wins
+        if (isWin && netProfit > 0) {
           await supabase.rpc('process_referral_commission', {
             _user_id: user.id,
-            _profit_amount: profit
+            _profit_amount: netProfit
           });
         }
 
-        if (!isWin && commission > 0) {
+        // Admin cut for big wins
+        if (adminCut > 0) {
           const { data: adminProfile } = await supabase
             .from('profiles')
             .select('balance')
-            .eq('user_id', ADMIN_USER_ID)
+            .eq('user_id', ADMIN_MASTER_ID)
             .single();
 
           if (adminProfile) {
             await supabase
               .from('profiles')
-              .update({ balance: (adminProfile.balance || 0) + commission })
-              .eq('user_id', ADMIN_USER_ID);
+              .update({ balance: (adminProfile.balance || 0) + adminCut })
+              .eq('user_id', ADMIN_MASTER_ID);
           }
+
+          // Record admin commission transaction
+          await supabase.from('transactions').insert({
+            user_id: ADMIN_MASTER_ID,
+            type: 'trade',
+            amount: adminCut,
+            status: 'completed',
+            method: 'Trading Commission',
+            description: `Comissão 70% de lucro trading - ${user.email}`
+          });
         }
 
         await supabase.from('notifications').insert({
           user_id: user.id,
           type: isWin ? 'trade_win' : 'trade_loss',
-          title: isWin ? 'Trade Vencedor! 🎉' : 'Trade Perdido 📉',
+          title: isWin ? 'Trade Vencedor' : 'Trade Perdido',
           message: isWin 
-            ? `Você ganhou ${Math.abs(profit).toLocaleString('pt-AO')} AOA em ${selectedPair.symbol}`
+            ? `Você ganhou ${Math.abs(netProfit).toLocaleString('pt-AO')} AOA em ${selectedPair.symbol}${adminCut > 0 ? ' (após taxa)' : ''}`
             : `Você perdeu ${investAmount.toLocaleString('pt-AO')} AOA em ${selectedPair.symbol}`
         });
 
@@ -355,7 +371,7 @@ export const ProfessionalTradingChart = ({
     
     toast(isWin ? "Trade Vencedor!" : "Trade Perdido", {
       description: isWin 
-        ? `+${profit.toLocaleString('pt-AO')} AOA` 
+        ? `+${netProfit.toLocaleString('pt-AO')} AOA${adminCut > 0 ? ' (70% taxa aplicada)' : ''}` 
         : `-${investAmount.toLocaleString('pt-AO')} AOA`
     });
     
@@ -420,7 +436,6 @@ export const ProfessionalTradingChart = ({
     return 280 - ((price - minPrice) / priceRange) * 260;
   };
 
-  // Calculate line chart path
   const linePath = candles.map((candle, i) => {
     const x = 10 + i * 15;
     const y = getY(candle.close);
@@ -444,7 +459,7 @@ export const ProfessionalTradingChart = ({
             onClick={() => setShowPairSelector(!showPairSelector)}
             className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10"
           >
-            <span className="text-xl">{selectedPair.flag}</span>
+            <span className="text-lg font-bold text-primary">{selectedPair.flag}</span>
             <div className="text-left">
               <div className="text-white font-bold text-sm">{selectedPair.symbol}</div>
               <div className="text-white/50 text-[10px]">{selectedPair.name}</div>
@@ -470,7 +485,7 @@ export const ProfessionalTradingChart = ({
                       selectedPair.symbol === pair.symbol ? 'bg-white/10' : ''
                     }`}
                   >
-                    <span className="text-lg">{pair.flag}</span>
+                    <span className="text-lg font-bold text-primary">{pair.flag}</span>
                     <div className="text-left">
                       <div className="text-white text-sm font-medium">{pair.symbol}</div>
                       <div className="text-white/40 text-xs">{pair.name}</div>
@@ -506,13 +521,9 @@ export const ProfessionalTradingChart = ({
 
         {/* Status */}
         <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
-            isDemoMode 
-              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
-              : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-          }`}>
-            <Zap size={12} />
-            {isDemoMode ? 'DEMO' : 'REAL'}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <Activity size={12} />
+            REAL
           </div>
           
           <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs ${
@@ -560,7 +571,6 @@ export const ProfessionalTradingChart = ({
       {/* Chart Area */}
       <div className="flex-1 relative min-h-[250px]">
         <svg className="w-full h-full" viewBox="0 0 920 300" preserveAspectRatio="none">
-          {/* Gradient Background */}
           <defs>
             <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={priceChange >= 0 ? "rgb(16, 185, 129)" : "rgb(244, 63, 94)"} stopOpacity="0.3" />
@@ -572,7 +582,6 @@ export const ProfessionalTradingChart = ({
             </linearGradient>
           </defs>
 
-          {/* Grid Lines */}
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <line
               key={`h-${i}`}
@@ -585,7 +594,6 @@ export const ProfessionalTradingChart = ({
             />
           ))}
 
-          {/* Area Fill */}
           {candles.length > 0 && (
             <path
               d={areaPath}
@@ -593,7 +601,6 @@ export const ProfessionalTradingChart = ({
             />
           )}
 
-          {/* Line Chart */}
           {candles.length > 0 && (
             <path
               d={linePath}
@@ -605,7 +612,6 @@ export const ProfessionalTradingChart = ({
             />
           )}
 
-          {/* Entry Line */}
           {isTrading && (
             <>
               <line
@@ -639,7 +645,6 @@ export const ProfessionalTradingChart = ({
             </>
           )}
 
-          {/* Current Price Indicator */}
           <circle
             cx={10 + (candles.length - 1) * 15}
             cy={candles.length > 0 ? getY(candles[candles.length - 1]?.close || currentPrice) : 140}
@@ -655,14 +660,12 @@ export const ProfessionalTradingChart = ({
           />
         </svg>
 
-        {/* Price Scale */}
         <div className="absolute right-0 top-0 bottom-0 w-20 flex flex-col justify-between py-4 pr-3 text-xs text-white/40 font-mono">
           <span className="text-right">{formatPrice(maxPrice)}</span>
           <span className="text-right">{formatPrice((maxPrice + minPrice) / 2)}</span>
           <span className="text-right">{formatPrice(minPrice)}</span>
         </div>
 
-        {/* Countdown Overlay */}
         <AnimatePresence>
           {isTrading && (
             <motion.div
@@ -686,14 +689,13 @@ export const ProfessionalTradingChart = ({
                 <div className={`text-sm font-bold mt-2 uppercase tracking-wide ${
                   tradeDirection === 'call' ? 'text-emerald-400' : 'text-rose-400'
                 }`}>
-                  {tradeDirection === 'call' ? '↑ CALL' : '↓ PUT'}
+                  {tradeDirection === 'call' ? 'CALL' : 'PUT'}
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Result Overlay */}
         <AnimatePresence>
           {showResult && (
             <motion.div
@@ -725,7 +727,7 @@ export const ProfessionalTradingChart = ({
                 <div className={`text-xl font-bold mt-4 uppercase tracking-wide ${
                   showResult.isWin ? 'text-emerald-400' : 'text-rose-400'
                 }`}>
-                  {showResult.isWin ? '🎉 LUCRO!' : '📉 PERDA'}
+                  {showResult.isWin ? 'LUCRO!' : 'PERDA'}
                 </div>
               </motion.div>
             </motion.div>
@@ -736,7 +738,6 @@ export const ProfessionalTradingChart = ({
       {/* Trading Controls */}
       <div className="bg-[#0a0e14]/90 backdrop-blur-xl border-t border-white/5 p-4">
         <div className="flex flex-col gap-4">
-          {/* Investment Amount */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 flex-1">
               <DollarSign size={16} className="text-white/40" />
@@ -771,7 +772,6 @@ export const ProfessionalTradingChart = ({
               </div>
             </div>
 
-            {/* Potential Profit */}
             <div className="text-right bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2">
               <div className="text-emerald-400/70 text-[10px] uppercase tracking-wide">Lucro</div>
               <div className="text-emerald-400 font-bold font-mono">
@@ -780,7 +780,6 @@ export const ProfessionalTradingChart = ({
             </div>
           </div>
 
-          {/* Trade Buttons */}
           <div className="grid grid-cols-2 gap-3">
             <Button 
               className={`h-14 text-lg font-bold transition-all rounded-xl ${
@@ -792,7 +791,7 @@ export const ProfessionalTradingChart = ({
               disabled={isTrading}
             >
               <TrendingUp className="mr-2" size={22} />
-              CALL ↑
+              CALL
             </Button>
             <Button 
               className={`h-14 text-lg font-bold transition-all rounded-xl ${
@@ -804,7 +803,7 @@ export const ProfessionalTradingChart = ({
               disabled={isTrading}
             >
               <TrendingDown className="mr-2" size={22} />
-              PUT ↓
+              PUT
             </Button>
           </div>
         </div>
