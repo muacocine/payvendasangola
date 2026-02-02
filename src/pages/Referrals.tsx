@@ -30,6 +30,7 @@ const Referrals = () => {
 
   useEffect(() => {
     if (user) {
+      refreshProfile();
       fetchReferrals();
     }
   }, [user]);
@@ -87,7 +88,7 @@ const Referrals = () => {
     if (!profile?.referral_code) return;
     
     const referralLink = `${window.location.origin}/registro?ref=${profile.referral_code}`;
-    const shareText = `🚀 Junte-se ao BIOLOS - a melhor plataforma de trading de Angola! Use meu código de referência e comece a lucrar: ${referralLink}`;
+    const shareText = `Junte-se ao PayVendas - a melhor plataforma de trading de Angola! Use meu codigo de referencia e comece a lucrar: ${referralLink}`;
     
     if (navigator.share) {
       try {

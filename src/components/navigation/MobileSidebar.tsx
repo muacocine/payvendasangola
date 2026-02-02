@@ -19,9 +19,8 @@ import { useAuth } from "@/hooks/useAuth";
 import payvendasLogo from "@/assets/payvendas-logo.png";
 
 const navItems = [
-  { path: "/", label: "Início", Icon: Home },
-  { path: "/loja", label: "Loja de PDFs", Icon: ShoppingCart },
   { path: "/trading", label: "Trading", Icon: TrendingUp },
+  { path: "/loja", label: "Loja de PDFs", Icon: ShoppingCart },
   { path: "/feed", label: "Comunidade", Icon: Users },
   { path: "/chat", label: "Chat", Icon: MessageCircle },
   { path: "/carteira", label: "Carteira", Icon: Wallet },

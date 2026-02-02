@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -26,11 +26,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Profile = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
   const documentInputRef = useRef<HTMLInputElement>(null);
   const selfieInputRef = useRef<HTMLInputElement>(null);
+
+  // Refresh profile data on mount
+  useEffect(() => {
+    if (user) {
+      refreshProfile();
+    }
+  }, [user]);
 
   const copyIban = () => {
     if (profile?.iban_virtual) {

@@ -64,6 +64,7 @@ const Wallet = () => {
 
   useEffect(() => {
     if (user) {
+      refreshProfile();
       fetchTransactions();
     }
   }, [user]);
