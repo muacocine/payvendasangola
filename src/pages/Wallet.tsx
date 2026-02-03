@@ -359,9 +359,9 @@ const Wallet = () => {
   const canActivate = profile?.kyc_status === 'approved' && !isWalletActive;
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-8">
+    <div className="min-h-screen bg-background pt-16 pb-8">
       {/* Header */}
-      <div className="px-4 pt-6 pb-4 bg-white border-b border-border">
+      <div className="px-4 py-4 bg-white border-b border-border">
         <h1 className="font-display text-xl font-bold text-foreground mb-1">Carteira</h1>
         <p className="text-muted-foreground text-sm">Gerencie seus fundos e cartão virtual</p>
       </div>

@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, Copy, Share2, Gift, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { Users, Copy, Share2, Gift, TrendingUp, CheckCircle, Clock, Link as LinkIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlassCard } from "@/components/ui/GlassCard";
 
 interface Referral {
@@ -36,16 +34,17 @@ const Referrals = () => {
   }, [user]);
 
   const fetchReferrals = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('referrals')
         .select('*')
-        .eq('referrer_id', user?.id)
+        .eq('referrer_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Fetch referred profiles
       const referralsWithProfiles = await Promise.all(
         (data || []).map(async (ref) => {
           const { data: profileData } = await supabase
@@ -69,15 +68,18 @@ const Referrals = () => {
     }
   };
 
-  const copyReferralCode = async () => {
-    if (!profile?.referral_code) return;
-    
-    const referralLink = `${window.location.origin}/registro?ref=${profile.referral_code}`;
+  // Generate unique referral link with UUID
+  const referralLink = profile?.referral_code 
+    ? `${window.location.origin}/registro?ref=${profile.referral_code}`
+    : '';
+
+  const copyReferralLink = async () => {
+    if (!referralLink) return;
     
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
-      toast.success('Link de referência copiado!');
+      toast.success('Link de afiliado copiado!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('Erro ao copiar link');
@@ -85,223 +87,223 @@ const Referrals = () => {
   };
 
   const shareReferral = async () => {
-    if (!profile?.referral_code) return;
+    if (!referralLink) return;
     
-    const referralLink = `${window.location.origin}/registro?ref=${profile.referral_code}`;
-    const shareText = `Junte-se ao PayVendas - a melhor plataforma de trading de Angola! Use meu codigo de referencia e comece a lucrar: ${referralLink}`;
+    const shareText = `🚀 Junte-se ao PayVendas - Ganhe dinheiro com trading!\n\nUse meu link e comece agora: ${referralLink}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'BIOLOS - Trading Platform',
+          title: 'PayVendas - Trading Platform',
           text: shareText,
           url: referralLink
         });
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
-          toast.error('Erro ao compartilhar');
+          copyReferralLink();
         }
       }
     } else {
-      copyReferralCode();
+      copyReferralLink();
     }
   };
 
-  const totalEarnings = (profile as any)?.referral_earnings || 0;
-  const totalReferrals = referrals.length;
+  const totalEarnings = profile?.referral_earnings || 0;
+  const totalReferrals = profile?.referral_count || 0;
   const activeReferrals = referrals.filter(r => r.status === 'active').length;
 
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-background pb-24">
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              Programa de Afiliados
-            </h1>
-            <p className="text-muted-foreground">
-              Convide amigos e ganhe 5% de comissão em cada lucro deles!
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-background pt-16 pb-8">
+      <div className="container mx-auto px-4 max-w-2xl">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <h1 className="text-2xl font-display font-bold text-foreground mb-1">
+            Programa de Afiliados
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Convide amigos e ganhe 5% de comissão em cada lucro!
+          </p>
+        </motion.div>
 
-          {/* Referral Code Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6"
-          >
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-primary/20">
-                    <Gift className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Seu Código de Referência</p>
-                    <p className="text-2xl font-bold text-primary font-mono">
-                      {profile?.referral_code || 'Carregando...'}
-                    </p>
-                  </div>
-                </div>
+        {/* Referral Link Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <GlassCard className="bg-gradient-to-br from-primary to-primary/80 text-white">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 rounded-xl bg-white/20">
+                <LinkIcon className="w-6 h-6" />
               </div>
-
-              <div className="flex gap-3">
-                <Button
-                  onClick={copyReferralCode}
-                  variant="outline"
-                  className="flex-1 gap-2"
-                >
-                  {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? 'Copiado!' : 'Copiar Link'}
-                </Button>
-                <Button
-                  onClick={shareReferral}
-                  className="flex-1 gap-2 btn-neon"
-                >
-                  <Share2 className="w-4 h-4" />
-                  Compartilhar
-                </Button>
-              </div>
-            </GlassCard>
-          </motion.div>
-
-          {/* Stats Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-3 gap-4 mb-6"
-          >
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-4 text-center">
-                <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">{totalReferrals}</p>
-                <p className="text-xs text-muted-foreground">Total Indicados</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-4 text-center">
-                <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">{activeReferrals}</p>
-                <p className="text-xs text-muted-foreground">Ativos</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">
-                  {totalEarnings.toLocaleString('pt-AO')}
+              <div>
+                <p className="text-white/80 text-sm">Seu Link Único de Afiliado</p>
+                <p className="text-lg font-bold font-mono">
+                  {profile?.referral_code || 'Carregando...'}
                 </p>
-                <p className="text-xs text-muted-foreground">AOA Ganhos</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* How it Works */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-6"
-          >
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-primary" />
-                  Como Funciona
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">1</div>
-                  <p className="text-sm text-muted-foreground">Compartilhe seu link de referência com amigos</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">2</div>
-                  <p className="text-sm text-muted-foreground">Eles se registram usando seu código</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">3</div>
-                  <p className="text-sm text-muted-foreground">Ganhe 5% de comissão em cada lucro que eles obtiverem no trading!</p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Referrals List */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <h2 className="text-lg font-semibold text-foreground mb-4">Seus Indicados</h2>
-            
-            {loading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-card/50 rounded-lg animate-pulse" />
-                ))}
               </div>
-            ) : referrals.length === 0 ? (
-              <Card className="bg-card/50 border-border/50">
-                <CardContent className="p-8 text-center">
-                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    Você ainda não tem indicados. Compartilhe seu link e comece a ganhar!
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {referrals.map((referral) => (
-                  <Card key={referral.id} className="bg-card/50 border-border/50">
-                    <CardContent className="p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Users className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {referral.referred_profile?.full_name || 'Usuário'}
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            {referral.status === 'active' ? (
-                              <span className="flex items-center gap-1 text-green-500">
-                                <CheckCircle className="w-3 h-3" /> Ativo
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 text-yellow-500">
-                                <Clock className="w-3 h-3" /> Pendente
-                              </span>
-                            )}
-                            <span>•</span>
-                            <span>{new Date(referral.created_at).toLocaleDateString('pt-AO')}</span>
-                          </div>
-                        </div>
+            </div>
+
+            {/* Full Link Display */}
+            <div className="p-3 bg-white/10 rounded-xl mb-4 break-all">
+              <code className="text-sm text-white/90">
+                {referralLink || 'Gerando link...'}
+              </code>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={copyReferralLink}
+                variant="secondary"
+                className="flex-1 gap-2 bg-white/20 hover:bg-white/30 text-white border-0"
+              >
+                {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? 'Copiado!' : 'Copiar'}
+              </Button>
+              <Button
+                onClick={shareReferral}
+                className="flex-1 gap-2 bg-white text-primary hover:bg-white/90"
+              >
+                <Share2 className="w-4 h-4" />
+                Compartilhar
+              </Button>
+            </div>
+          </GlassCard>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-3 gap-3 mb-6"
+        >
+          <GlassCard className="text-center py-4">
+            <Users className="w-6 h-6 text-primary mx-auto mb-2" />
+            <p className="text-2xl font-display font-bold text-foreground">{totalReferrals}</p>
+            <p className="text-xs text-muted-foreground">Total</p>
+          </GlassCard>
+
+          <GlassCard className="text-center py-4">
+            <CheckCircle className="w-6 h-6 text-success mx-auto mb-2" />
+            <p className="text-2xl font-display font-bold text-foreground">{activeReferrals}</p>
+            <p className="text-xs text-muted-foreground">Ativos</p>
+          </GlassCard>
+
+          <GlassCard className="text-center py-4">
+            <TrendingUp className="w-6 h-6 text-warning mx-auto mb-2" />
+            <p className="text-xl font-display font-bold text-foreground">
+              {totalEarnings.toLocaleString('pt-AO')}
+            </p>
+            <p className="text-xs text-muted-foreground">AOA</p>
+          </GlassCard>
+        </motion.div>
+
+        {/* How it Works */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6"
+        >
+          <GlassCard>
+            <div className="flex items-center gap-2 mb-4">
+              <Gift className="w-5 h-5 text-primary" />
+              <h2 className="font-display font-semibold text-foreground">Como Funciona</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">1</div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">Compartilhe seu link</p>
+                  <p className="text-xs text-muted-foreground">Envie para amigos via WhatsApp, Facebook, etc.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">2</div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">Eles se registram</p>
+                  <p className="text-xs text-muted-foreground">Usando seu link único de afiliado</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">3</div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">Ganhe comissões</p>
+                  <p className="text-xs text-muted-foreground">5% de cada lucro que eles obtiverem!</p>
+                </div>
+              </div>
+            </div>
+          </GlassCard>
+        </motion.div>
+
+        {/* Referrals List */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h2 className="font-display font-semibold text-foreground mb-4">Seus Indicados</h2>
+          
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-16 bg-secondary rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : referrals.length === 0 ? (
+            <GlassCard className="text-center py-8">
+              <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+              <p className="text-muted-foreground font-medium">Nenhum indicado ainda</p>
+              <p className="text-sm text-muted-foreground">Compartilhe seu link e comece a ganhar!</p>
+            </GlassCard>
+          ) : (
+            <div className="space-y-3">
+              {referrals.map((referral) => (
+                <GlassCard key={referral.id}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-primary" />
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-green-500">
-                          +{referral.commission_earned?.toLocaleString('pt-AO') || 0} AOA
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {referral.referred_profile?.full_name || 'Usuário'}
                         </p>
-                        <p className="text-xs text-muted-foreground">Comissão</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {referral.status === 'active' ? (
+                            <span className="flex items-center gap-1 text-success">
+                              <CheckCircle className="w-3 h-3" /> Ativo
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-warning">
+                              <Clock className="w-3 h-3" /> Pendente
+                            </span>
+                          )}
+                          <span>•</span>
+                          <span>{new Date(referral.created_at).toLocaleDateString('pt-AO')}</span>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-success">
+                        +{(referral.commission_earned || 0).toLocaleString('pt-AO')} AOA
+                      </p>
+                      <p className="text-xs text-muted-foreground">Comissão</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
-    </AppLayout>
+    </div>
   );
 };
 

@@ -14,7 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import biolosLogo from "@/assets/biolos-logo.png";
-import { BottomNavigation } from "@/components/navigation/BottomNavigation";
 
 interface ChatMessage {
   id: string;
@@ -302,7 +301,7 @@ const Chat = () => {
 
   if (isBanned) {
     return (
-      <div className="min-h-screen bg-[#0a0f18] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0a0f18] flex items-center justify-center p-4 pt-14">
         <div className="text-center">
           <Ban size={64} className="text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">Você foi banido do chat</h2>
@@ -313,13 +312,12 @@ const Chat = () => {
             </p>
           )}
         </div>
-        <BottomNavigation />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f18] flex flex-col">
+    <div className="min-h-screen bg-[#0a0f18] flex flex-col pt-14">
       {/* Chat Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#0d1421] border-b border-[#1e2a3a] flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -454,8 +452,6 @@ const Chat = () => {
           </Button>
         </div>
       </div>
-
-      <BottomNavigation />
 
       {/* Chuva Modal */}
       <AnimatePresence>
