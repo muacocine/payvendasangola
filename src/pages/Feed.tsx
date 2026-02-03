@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Share2, Bookmark, TrendingUp, TrendingDown, MoreHorizontal, Plus, Send } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -183,7 +182,8 @@ const Feed = () => {
   const canPublish = profile?.kyc_status === 'approved';
 
   return (
-    <AppLayout>
+    <div className="min-h-screen bg-background pt-16 pb-8">
+      <div className="container mx-auto max-w-2xl px-4">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="font-display text-xl font-bold text-foreground">Feed</h1>
@@ -388,7 +388,8 @@ const Feed = () => {
           ))
         )}
       </AnimatePresence>
-    </AppLayout>
+      </div>
+    </div>
   );
 };
 

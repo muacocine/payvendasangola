@@ -67,11 +67,11 @@ const Trading = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e14] flex flex-col pb-20 md:pb-0">
-      {/* Header */}
+    <div className="min-h-screen bg-[#0a0e14] flex flex-col pt-14 pb-20 md:pb-0">
+      {/* Balance Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#0c1018] border-b border-white/5">
         <div className="flex items-center gap-3">
-          <img src={payvendasLogo} alt="PayVendas" className="h-8" />
+          <img src={payvendasLogo} alt="PayVendas" className="h-7" />
         </div>
         
         <div className="flex items-center gap-3">

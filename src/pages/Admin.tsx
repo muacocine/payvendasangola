@@ -222,20 +222,40 @@ const Admin = () => {
     
     if (error) {
       toast.error("Erro ao atualizar KYC");
-    } else {
-      // Send notification
-      await supabase.from('notifications').insert({
-        user_id: userId,
-        type: status === 'approved' ? 'kyc_approved' : 'kyc_rejected',
-        title: status === 'approved' ? 'KYC Aprovado!' : 'KYC Rejeitado',
-        message: status === 'approved' 
-          ? 'Parabéns! Sua verificação foi aprovada. Agora você pode fazer depósitos e saques.' 
-          : 'Sua verificação foi rejeitada. Por favor, envie novos documentos.'
-      });
-
-      toast.success(`KYC ${status === 'approved' ? 'aprovado' : 'rejeitado'}`);
-      fetchUsers();
+      return;
     }
+
+    // If approved, give 1000 Kz bonus
+    if (status === 'approved') {
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('bonus_balance, signup_bonus_claimed')
+        .eq('user_id', userId)
+        .single();
+
+      if (userProfile && !userProfile.signup_bonus_claimed) {
+        await supabase
+          .from('profiles')
+          .update({ 
+            bonus_balance: (userProfile.bonus_balance || 0) + 1000,
+            signup_bonus_claimed: true
+          })
+          .eq('user_id', userId);
+      }
+    }
+
+    // Send notification
+    await supabase.from('notifications').insert({
+      user_id: userId,
+      type: status === 'approved' ? 'kyc_approved' : 'kyc_rejected',
+      title: status === 'approved' ? 'KYC Aprovado! 🎉' : 'KYC Rejeitado',
+      message: status === 'approved' 
+        ? 'Parabéns! Sua verificação foi aprovada. Você recebeu 1.000 Kz de bônus para usar no trading!' 
+        : 'Sua verificação foi rejeitada. Por favor, envie novos documentos.'
+    });
+
+    toast.success(`KYC ${status === 'approved' ? 'aprovado - 1000 Kz de bônus creditado!' : 'rejeitado'}`);
+    fetchUsers();
   };
 
   const processTransaction = async (transactionId: string, action: 'approved' | 'rejected', transaction: Transaction) => {
