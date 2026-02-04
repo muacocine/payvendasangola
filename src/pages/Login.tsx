@@ -5,13 +5,15 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import payvendasLogo from "@/assets/payvendas-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => localStorage.getItem("remembered_email") || "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem("remembered_email"));
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +23,13 @@ const Login = () => {
     setLoading(true);
     
     try {
+      // Handle remember me
+      if (rememberMe) {
+        localStorage.setItem("remembered_email", email);
+      } else {
+        localStorage.removeItem("remembered_email");
+      }
+
       await signIn(email, password);
       navigate("/trading");
     } catch (error) {
@@ -159,9 +168,10 @@ const Login = () => {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="rounded border-border bg-secondary w-5 h-5 text-primary focus:ring-primary" 
+                <Checkbox 
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
                 Lembrar-me
               </label>

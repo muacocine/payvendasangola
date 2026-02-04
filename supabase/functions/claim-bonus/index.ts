@@ -9,8 +9,7 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const SIGNUP_BONUS = 1000; // 1000 AOA for new users
-// PWA bonus removed - only signup bonus remains
+const SIGNUP_BONUS = 1000; // 1000 AOA for KYC approved users
 
 Deno.serve(async (req) => {
   // Handle CORS
@@ -66,7 +65,6 @@ Deno.serve(async (req) => {
         .update({
           signup_bonus_claimed: true,
           bonus_balance: (profile.bonus_balance || 0) + bonusAmount,
-          balance: (profile.balance || 0) + bonusAmount,
         })
         .eq("user_id", user.id);
 
@@ -76,7 +74,7 @@ Deno.serve(async (req) => {
         amount: bonusAmount,
         status: "completed",
         method: "PayVendas",
-        description: "Bônus de boas-vindas",
+        description: "Bônus de boas-vindas (KYC aprovado)",
       });
 
       await supabase.from("notifications").insert({
