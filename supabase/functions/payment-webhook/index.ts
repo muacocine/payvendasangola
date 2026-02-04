@@ -200,10 +200,10 @@ app.post("/initiate", async (c) => {
       return c.json({ error: "Ative sua carteira primeiro (gratis)." }, { status: 400, headers: corsHeaders });
     }
 
-    // Validate withdrawal
+    // Validate withdrawal - min 500 AOA, max 200000 AOA
     if (type === "withdrawal") {
-      if (amount < 200) {
-        return c.json({ error: "Valor minimo de levantamento: 200 AOA" }, { status: 400, headers: corsHeaders });
+      if (amount < 500) {
+        return c.json({ error: "Valor minimo de levantamento: 500 AOA" }, { status: 400, headers: corsHeaders });
       }
 
       if (amount > 200000) {

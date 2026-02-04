@@ -4,9 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { PWAProvider } from "@/hooks/usePWA";
 import { CartProvider } from "@/contexts/CartContext";
-import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 import { AppNavHeader } from "@/components/layout/AppNavHeader";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -18,7 +16,6 @@ import Wallet from "./pages/Wallet";
 import Admin from "./pages/Admin";
 import Chat from "./pages/Chat";
 import PDFStore from "./pages/PDFStore";
-import InstallApp from "./pages/InstallApp";
 import Referrals from "./pages/Referrals";
 import NotFound from "./pages/NotFound";
 
@@ -28,32 +25,28 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <AuthProvider>
-        <PWAProvider>
-          <CartProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <PWAInstallPrompt />
-              <AppNavHeader />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/registro" element={<Register />} />
-                <Route path="/trading" element={<Trading />} />
-                <Route path="/feed" element={<Feed />} />
-                <Route path="/perfil" element={<Profile />} />
-                <Route path="/carteira" element={<Wallet />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/loja" element={<PDFStore />} />
-                <Route path="/instalar" element={<InstallApp />} />
-                <Route path="/afiliados" element={<Referrals />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/dashboard" element={<Trading />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </TooltipProvider>
-          </CartProvider>
-        </PWAProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <AppNavHeader />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Register />} />
+              <Route path="/trading" element={<Trading />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/perfil" element={<Profile />} />
+              <Route path="/carteira" element={<Wallet />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/loja" element={<PDFStore />} />
+              <Route path="/afiliados" element={<Referrals />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/dashboard" element={<Trading />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </TooltipProvider>
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>

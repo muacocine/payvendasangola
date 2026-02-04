@@ -385,7 +385,13 @@ const Admin = () => {
 
   const filteredUsers = users.filter(u => 
     u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.iban_virtual?.toLowerCase().includes(searchTerm.toLowerCase())
+    u.iban_virtual?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter users with KYC documents pending review
+  const usersWithDocuments = filteredUsers.filter(u => 
+    u.kyc_status === 'pending' && (u.kyc_document_url || u.kyc_selfie_url)
   );
 
   const pendingTransactions = transactions.filter(t => t.status === 'pending');
@@ -529,9 +535,16 @@ const Admin = () => {
           {/* Users Tab */}
           <TabsContent value="users">
             <GlassCard className="bg-[#0d1421] border-[#1e2a3a]">
-              <h2 className="font-display font-semibold text-white mb-4 text-sm">
-                Gestão de Usuários
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display font-semibold text-white text-sm">
+                  Gestão de Usuários
+                </h2>
+                {usersWithDocuments.length > 0 && (
+                  <span className="px-3 py-1 bg-warning/20 text-warning text-xs rounded-full font-bold">
+                    {usersWithDocuments.length} documentos para revisar
+                  </span>
+                )}
+              </div>
 
               <div className="space-y-3">
                 {filteredUsers.map((u, index) => (
@@ -540,7 +553,11 @@ const Admin = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: index * 0.03 }}
-                    className="p-3 rounded-xl bg-[#1e2a3a]/50"
+                    className={`p-3 rounded-xl ${
+                      u.kyc_status === 'pending' && (u.kyc_document_url || u.kyc_selfie_url)
+                        ? 'bg-warning/10 border border-warning/30'
+                        : 'bg-[#1e2a3a]/50'
+                    }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -548,11 +565,6 @@ const Admin = () => {
                         <p className="text-xs text-slate-400">{u.phone || 'Sem telefone'}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        {u.pwa_installed && (
-                          <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full">
-                            PWA
-                          </span>
-                        )}
                         {u.wallet_activated && (
                           <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
                             <CreditCard size={10} className="inline mr-1" />
@@ -592,12 +604,13 @@ const Admin = () => {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
-                      <code className="text-[#1e88e5]">{u.iban_virtual}</code>
+                      <code className="text-[#1e88e5]">{u.iban_virtual || 'Sem IBAN'}</code>
                     </div>
 
                     {/* KYC Documents */}
                     {(u.kyc_document_url || u.kyc_selfie_url) && (
-                      <div className="flex gap-2 mb-3">
+                      <div className="flex gap-2 mb-3 p-2 bg-warning/10 rounded-lg">
+                        <span className="text-xs text-warning font-medium">📋 Documentos:</span>
                         {u.kyc_document_url && (
                           <a 
                             href={u.kyc_document_url} 
@@ -622,7 +635,7 @@ const Admin = () => {
                     )}
 
                     <div className="flex gap-2">
-                      {u.kyc_status === 'pending' && (
+                      {u.kyc_status === 'pending' && (u.kyc_document_url || u.kyc_selfie_url) && (
                         <>
                           <Button
                             size="sm"
@@ -630,7 +643,7 @@ const Admin = () => {
                             onClick={() => updateKycStatus(u.user_id, 'approved')}
                           >
                             <CheckCircle size={12} className="mr-1" />
-                            Aprovar
+                            Aprovar KYC
                           </Button>
                           <Button
                             size="sm"

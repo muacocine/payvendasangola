@@ -204,8 +204,8 @@ const Wallet = () => {
     if (!user || !profile) return;
     
     const withdrawAmount = parseFloat(amount);
-    if (isNaN(withdrawAmount) || withdrawAmount < 200) {
-      toast.error("Valor mínimo de levantamento: 200 AOA");
+    if (isNaN(withdrawAmount) || withdrawAmount < 500) {
+      toast.error("Valor mínimo de levantamento: 500 AOA");
       return;
     }
 
