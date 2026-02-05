@@ -215,47 +215,78 @@ const Admin = () => {
   };
 
   const updateKycStatus = async (userId: string, status: 'approved' | 'rejected') => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ kyc_status: status })
-      .eq('user_id', userId);
-    
-    if (error) {
-      toast.error("Erro ao atualizar KYC");
-      return;
-    }
-
-    // If approved, give 1000 Kz bonus
-    if (status === 'approved') {
-      const { data: userProfile } = await supabase
+    try {
+      const { error } = await supabase
         .from('profiles')
-        .select('bonus_balance, signup_bonus_claimed')
-        .eq('user_id', userId)
-        .single();
-
-      if (userProfile && !userProfile.signup_bonus_claimed) {
-        await supabase
-          .from('profiles')
-          .update({ 
-            bonus_balance: (userProfile.bonus_balance || 0) + 1000,
-            signup_bonus_claimed: true
-          })
-          .eq('user_id', userId);
+        .update({ kyc_status: status })
+        .eq('user_id', userId);
+      
+      if (error) {
+        toast.error("Erro ao atualizar KYC");
+        console.error("KYC update error:", error);
+        return;
       }
+
+      // If approved, give 1000 Kz bonus
+      if (status === 'approved') {
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('bonus_balance, signup_bonus_claimed, balance')
+          .eq('user_id', userId)
+          .single();
+
+        if (profileError) {
+          console.error("Error fetching profile for bonus:", profileError);
+        }
+
+        // Always credit bonus when KYC is approved (regardless of signup_bonus_claimed)
+        if (userProfile) {
+          const newBonusBalance = (userProfile.bonus_balance || 0) + 1000;
+          
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ 
+              bonus_balance: newBonusBalance,
+              signup_bonus_claimed: true,
+              wallet_activated: true // Also activate wallet
+            })
+            .eq('user_id', userId);
+
+          if (updateError) {
+            console.error("Error crediting bonus:", updateError);
+            toast.error("Erro ao creditar bônus");
+          } else {
+            console.log(`Bonus of 1000 Kz credited to user ${userId}. New bonus balance: ${newBonusBalance}`);
+            
+            // Also record transaction for the bonus
+            await supabase.from('transactions').insert({
+              user_id: userId,
+              type: 'deposit',
+              amount: 1000,
+              status: 'completed',
+              method: 'PayVendas',
+              description: 'Bônus KYC: 1000 Kz creditado'
+            });
+          }
+        }
+      }
+
+      // Send notification
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: status === 'approved' ? 'kyc_approved' : 'kyc_rejected',
+        title: status === 'approved' ? 'KYC Aprovado! 🎉' : 'KYC Rejeitado',
+        message: status === 'approved' 
+          ? 'Parabéns! Sua verificação foi aprovada. Você recebeu 1.000 Kz de bônus para usar no trading!' 
+          : 'Sua verificação foi rejeitada. Por favor, envie novos documentos.'
+      });
+
+      toast.success(`KYC ${status === 'approved' ? 'aprovado - 1000 Kz de bônus creditado!' : 'rejeitado'}`);
+      fetchUsers();
+    } catch (err) {
+      console.error("Error in updateKycStatus:", err);
+      toast.error("Erro ao atualizar KYC");
     }
-
-    // Send notification
-    await supabase.from('notifications').insert({
-      user_id: userId,
-      type: status === 'approved' ? 'kyc_approved' : 'kyc_rejected',
-      title: status === 'approved' ? 'KYC Aprovado! 🎉' : 'KYC Rejeitado',
-      message: status === 'approved' 
-        ? 'Parabéns! Sua verificação foi aprovada. Você recebeu 1.000 Kz de bônus para usar no trading!' 
-        : 'Sua verificação foi rejeitada. Por favor, envie novos documentos.'
-    });
-
-    toast.success(`KYC ${status === 'approved' ? 'aprovado - 1000 Kz de bônus creditado!' : 'rejeitado'}`);
-    fetchUsers();
   };
 
   const processTransaction = async (transactionId: string, action: 'approved' | 'rejected', transaction: Transaction) => {

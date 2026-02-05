@@ -44,7 +44,7 @@ const PAYMENT_METHODS = [
   { id: 'paypay', name: 'PayPay África', icon: paypayLogo, color: 'bg-cyan-500/20' },
 ];
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://shpfccohqkjootsbhuua.supabase.co";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 const Wallet = () => {
   const { user, profile, refreshProfile } = useAuth();
