@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { 
   User,
   Wallet, 
@@ -21,7 +22,8 @@ import {
   Mail,
   CreditCard,
   Calendar,
-  Shield
+  Shield,
+  TrendingUp
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -33,14 +35,71 @@ const Profile = () => {
   const { user, profile, refreshProfile } = useAuth();
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [salesData, setSalesData] = useState<{date: string; value: number}[]>([]);
+  const [totalSales, setTotalSales] = useState(0);
   const documentInputRef = useRef<HTMLInputElement>(null);
   const selfieInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
       refreshProfile();
+      fetchSalesData();
     }
   }, [user]);
+
+  const fetchSalesData = async () => {
+    if (!user) return;
+    
+    try {
+      // Fetch user's PDF sales (when someone bought their PDFs)
+      const { data: purchases } = await supabase
+        .from('pdf_purchases')
+        .select('amount, created_at, product_id')
+        .order('created_at', { ascending: true });
+      
+      // Get user's products
+      const { data: myProducts } = await supabase
+        .from('pdf_products')
+        .select('id')
+        .eq('user_id', user.id);
+      
+      const myProductIds = new Set(myProducts?.map(p => p.id) || []);
+      
+      // Filter purchases of user's products
+      const mySales = purchases?.filter(p => myProductIds.has(p.product_id)) || [];
+      
+      // Calculate total sales
+      const total = mySales.reduce((sum, sale) => sum + (sale.amount * 0.85), 0);
+      setTotalSales(total);
+      
+      // Group by date for chart
+      const salesByDate: Record<string, number> = {};
+      mySales.forEach(sale => {
+        const date = new Date(sale.created_at).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' });
+        salesByDate[date] = (salesByDate[date] || 0) + (sale.amount * 0.85);
+      });
+      
+      // Convert to array for chart
+      const chartData = Object.entries(salesByDate).map(([date, value]) => ({ date, value }));
+      
+      // Add empty data if no sales
+      if (chartData.length === 0) {
+        const today = new Date();
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          chartData.push({
+            date: d.toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' }),
+            value: 0
+          });
+        }
+      }
+      
+      setSalesData(chartData);
+    } catch (error) {
+      console.error('Error fetching sales data:', error);
+    }
+  };
 
   const copyIban = () => {
     if (profile?.iban_virtual) {
@@ -346,6 +405,61 @@ const Profile = () => {
             </div>
           </GlassCard>
         </Link>
+
+        {/* Sales Chart */}
+        <GlassCard className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                <TrendingUp className="text-success" size={20} />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Vendas de E-books</p>
+                <p className="text-xs text-muted-foreground">Suas vendas recentes</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold text-success">{totalSales.toLocaleString('pt-AO')}</p>
+              <p className="text-xs text-muted-foreground">AOA ganhos</p>
+            </div>
+          </div>
+          
+          <div className="h-32">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={salesData}>
+                <defs>
+                  <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis hide />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px'
+                  }}
+                  formatter={(value: number) => [`${value.toLocaleString('pt-AO')} AOA`, 'Vendas']}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke="hsl(var(--success))" 
+                  strokeWidth={2}
+                  fill="url(#salesGradient)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </GlassCard>
 
         {/* Account Info */}
         <GlassCard>
