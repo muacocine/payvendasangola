@@ -10,7 +10,7 @@
  const supabase = createClient(supabaseUrl, supabaseServiceKey);
  
  // PliqPag API configuration
- const PLIQPAG_API_URL = "https://api.pliqpag.ao/v1";
+ const PLIQPAG_API_URL = "https://api.plinqpay.com/v1";
  const PLIQPAG_API_KEY = Deno.env.get("PLIQPAG_API_KEY")!;
  const PLIQPAG_ENTITY = "01055";
  const PLIQPAG_REFERENCE = "109918296";
