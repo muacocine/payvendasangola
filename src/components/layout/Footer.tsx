@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { AlertTriangle, Shield, FileText } from "lucide-react";
-import payvendasLogo from "@/assets/payvendas-logo.png";
+const payvendasLogo = "/assets/payvendas-logo.png";
 
 export const Footer = () => {
   return (

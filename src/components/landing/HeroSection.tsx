@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, ShoppingCart, Shield, BookOpen, Globe, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-person.png";
-import payvendasLogo from "@/assets/payvendas-logo.png";
+const heroImage = "/assets/hero-person.png";
+const payvendasLogo = "/assets/payvendas-logo.png";
 
 export const HeroSection = () => {
   return (

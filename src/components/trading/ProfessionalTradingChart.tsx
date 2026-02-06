@@ -87,7 +87,7 @@ export const ProfessionalTradingChart = ({
 
   // Connect to Finnhub WebSocket
   useEffect(() => {
-    const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY || 'd05s3i9r01qk0b0vr820d05s3i9r01qk0b0vr82g';
+    const FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || 'd05s3i9r01qk0b0vr820d05s3i9r01qk0b0vr82g';
     
     const connectWebSocket = () => {
       try {

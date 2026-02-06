@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
-import payvendasLogo from "@/assets/payvendas-logo.png";
+const payvendasLogo = "/assets/payvendas-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 

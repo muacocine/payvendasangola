@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import biolosLogo from "@/assets/biolos-logo.png";
+const biolosLogo = "/assets/biolos-logo.png";
 
 interface ChatMessage {
   id: string;

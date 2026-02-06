@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { ShoppingCart, CreditCard, Smartphone, Shield, ArrowRight } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import paypayLogo from "@/assets/paypay-logo.webp";
-import multicaixaLogo from "@/assets/multicaixa-logo.webp";
-import pliqpagLogo from "@/assets/pliqpag-logo.png";
+const paypayLogo = "/assets/paypay-logo.webp";
+const multicaixaLogo = "/assets/multicaixa-logo.webp";
+const pliqpagLogo = "/assets/pliqpag-logo.png";
 
 const paymentMethods = [
   {

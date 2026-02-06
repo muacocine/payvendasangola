@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, LogIn, ShoppingCart } from "lucide-react";
-import payvendasLogo from "@/assets/payvendas-logo.png";
+const payvendasLogo = "/assets/payvendas-logo.png";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 

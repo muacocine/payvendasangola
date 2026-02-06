@@ -13,7 +13,7 @@ import { ProfessionalTradingChart } from "@/components/trading/ProfessionalTradi
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import payvendasLogo from "@/assets/payvendas-logo.png";
+const payvendasLogo = "/assets/payvendas-logo.png";
 
 const Trading = () => {
   const { user, profile, refreshProfile } = useAuth();

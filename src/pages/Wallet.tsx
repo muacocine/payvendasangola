@@ -23,10 +23,10 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import payvendasLogo from "@/assets/payvendas-logo.png";
-import paypayLogo from "@/assets/paypay-logo.webp";
-import multicaixaLogo from "@/assets/multicaixa-logo.webp";
-import pliqpagLogo from "@/assets/pliqpag-logo.png";
+const payvendasLogo = "/assets/payvendas-logo.png";
+const paypayLogo = "/assets/paypay-logo.webp";
+const multicaixaLogo = "/assets/multicaixa-logo.webp";
+const pliqpagLogo = "/assets/pliqpag-logo.png";
 
 interface Transaction {
   id: string;
@@ -44,7 +44,7 @@ const PAYMENT_METHODS = [
   { id: 'paypay', name: 'PayPay África', icon: paypayLogo, color: 'bg-cyan-500/20' },
 ];
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 
 const Wallet = () => {
   const { user, profile, refreshProfile } = useAuth();
