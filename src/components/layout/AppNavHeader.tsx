@@ -3,8 +3,7 @@ import {
   TrendingUp, 
   Wallet, 
   User, 
-  ShoppingBag, 
-  MessageSquare,
+  ShoppingBag,
   Users,
   Menu,
   LogOut,
@@ -22,7 +21,6 @@ const navLinks = [
   { href: "/trading", label: "Trading", icon: TrendingUp },
   { href: "/carteira", label: "Carteira", icon: Wallet },
   { href: "/loja", label: "Loja", icon: ShoppingBag },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/afiliados", label: "Afiliados", icon: Users },
   { href: "/perfil", label: "Perfil", icon: User },
 ];
