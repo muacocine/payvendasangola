@@ -12,8 +12,9 @@
  // PliqPag API configuration
  const PLIQPAG_API_URL = "https://api.plinqpay.com/v1";
  const PLIQPAG_API_KEY = Deno.env.get("PLIQPAG_API_KEY")!;
- const PLIQPAG_ENTITY = "01055";
- const PLIQPAG_REFERENCE = "109918296";
+const PLIQPAG_PUBLIC_KEY = Deno.env.get("PLIQPAG_PUBLIC_KEY") || "";
+const PLIQPAG_ENTITY = "01055";
+const PLIQPAG_REFERENCE = "503267937";
  
  interface PliqPagTransaction {
    externalId: string;
@@ -243,15 +244,16 @@
      .update({ description: `${transaction.description} - Ref: ${pliqpagResult.reference || pliqpagResult.id}` })
      .eq("id", transaction.id);
  
-   return jsonResponse({
-     success: true,
-     transaction_id: transaction.id,
-     reference: pliqpagResult.reference || pliqpagResult.id,
-     payment_url: pliqpagResult.paymentUrl,
-     instructions: type === "deposit"
-       ? `Use a referencia ${pliqpagResult.reference} no PayPay Africa para pagar ${amount} AOA`
-       : `Levantamento de ${amount} AOA sera enviado para ${phone}`
-   });
+    return jsonResponse({
+      success: true,
+      transaction_id: transaction.id,
+      reference: pliqpagResult.reference || pliqpagResult.id,
+      entity: PLIQPAG_ENTITY,
+      payment_url: pliqpagResult.paymentUrl,
+      instructions: type === "deposit"
+        ? `Entidade: ${PLIQPAG_ENTITY}\nReferência: ${pliqpagResult.reference || pliqpagResult.id}\nValor: ${amount} AOA\n\nUse estes dados no Multicaixa Express ou PayPay África para concluir o pagamento.`
+        : `Levantamento de ${amount} AOA sera enviado para ${phone}`
+    });
  }
  
  async function handleActivateWallet(req: Request) {

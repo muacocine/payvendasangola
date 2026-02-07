@@ -28,8 +28,10 @@ export const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
       return;
     }
 
-    if ((profile.balance || 0) < total) {
-      toast.error("Saldo insuficiente");
+    // Only real balance can be used for purchases (exclude bonus)
+    const realBalance = (profile.balance || 0) - (profile.bonus_balance || 0);
+    if (realBalance < total) {
+      toast.error("Saldo real insuficiente. O saldo de bônus não pode ser usado para compras de produtos.");
       return;
     }
 
@@ -82,9 +84,22 @@ export const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
           description: `Compra: ${item.title}`
         });
 
-        // Trigger download
+        // Download PDF locally
         if (product.file_url) {
-          window.open(product.file_url, '_blank');
+          try {
+            const response = await fetch(product.file_url);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${item.title}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          } catch {
+            window.open(product.file_url, '_blank');
+          }
         }
       }
 

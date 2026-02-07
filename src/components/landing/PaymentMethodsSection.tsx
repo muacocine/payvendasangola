@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { ShoppingCart, CreditCard, Smartphone, Shield, ArrowRight } from "lucide-react";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { CreditCard, Shield } from "lucide-react";
 import paypayLogo from "@/assets/paypay-logo.webp";
 import multicaixaLogo from "@/assets/multicaixa-logo.webp";
 import pliqpagLogo from "@/assets/pliqpag-logo.png";
@@ -10,26 +9,26 @@ const paymentMethods = [
     logo: multicaixaLogo,
     name: "Multicaixa Express",
     description: "Pagamento instantâneo via Multicaixa Express",
-    color: "bg-orange-500/10"
   },
   {
     logo: paypayLogo,
     name: "PayPay África",
     description: "Transferências rápidas com PayPay",
-    color: "bg-cyan-500/10"
   },
   {
     logo: pliqpagLogo,
     name: "PliqPag",
     description: "Pagamentos seguros via referência",
-    color: "bg-emerald-500/10"
   },
 ];
 
 export const PaymentMethodsSection = () => {
   return (
-    <section className="py-24 bg-secondary/50">
-      <div className="container mx-auto px-4">
+    <section className="py-24 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/40 to-background" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -44,30 +43,28 @@ export const PaymentMethodsSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {paymentMethods.map((method, index) => {
-            return (
-              <GlassCard
-                key={index}
-                hover
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center bg-white border-border"
-              >
-                <div className={`w-16 h-16 rounded-2xl ${method.color} flex items-center justify-center mx-auto mb-4 p-2`}>
-                  <img src={method.logo} alt={method.name} className="w-full h-full object-contain" />
-                </div>
-                <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-                  {method.name}
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  {method.description}
-                </p>
-              </GlassCard>
-            );
-          })}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+          {paymentMethods.map((method, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              className="liquid-glass text-center !rounded-2xl hover:shadow-xl transition-all duration-300"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto mb-4 p-2">
+                <img src={method.logo} alt={method.name} className="w-full h-full object-contain" />
+              </div>
+              <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                {method.name}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {method.description}
+              </p>
+            </motion.div>
+          ))}
         </div>
 
         {/* Security Badge */}
@@ -78,12 +75,12 @@ export const PaymentMethodsSection = () => {
           transition={{ delay: 0.4 }}
           className="flex items-center justify-center gap-6 mt-12"
         >
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Shield size={20} className="text-primary" />
+          <div className="liquid-glass !p-3 !px-5 !rounded-full flex items-center gap-2 text-muted-foreground">
+            <Shield size={18} className="text-primary" />
             <span className="text-sm font-medium">Pagamentos 100% Seguros</span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <CreditCard size={20} className="text-primary" />
+          <div className="liquid-glass !p-3 !px-5 !rounded-full flex items-center gap-2 text-muted-foreground">
+            <CreditCard size={18} className="text-primary" />
             <span className="text-sm font-medium">Verificação KYC</span>
           </div>
         </motion.div>
