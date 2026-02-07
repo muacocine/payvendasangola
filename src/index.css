@@ -129,6 +129,51 @@
 }
 
 @layer components {
+  /* Liquid Glass - Premium iPhone-style glassmorphism */
+  .liquid-glass {
+    @apply rounded-3xl border p-6;
+    background: linear-gradient(135deg, 
+      hsl(0 0% 100% / 0.7) 0%, 
+      hsl(0 0% 100% / 0.4) 50%,
+      hsl(0 0% 100% / 0.6) 100%
+    );
+    border-color: hsl(0 0% 100% / 0.5);
+    backdrop-filter: blur(40px) saturate(1.8);
+    -webkit-backdrop-filter: blur(40px) saturate(1.8);
+    box-shadow: 
+      0 8px 32px hsl(0 0% 0% / 0.08),
+      0 0 0 1px hsl(0 0% 100% / 0.4),
+      inset 0 1px 0 hsl(0 0% 100% / 0.8),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.05);
+  }
+
+  .liquid-glass-dark {
+    background: linear-gradient(135deg, 
+      hsl(0 0% 100% / 0.08) 0%, 
+      hsl(0 0% 100% / 0.04) 50%,
+      hsl(0 0% 100% / 0.06) 100%
+    );
+    border-color: hsl(0 0% 100% / 0.12);
+    backdrop-filter: blur(40px) saturate(1.8);
+    box-shadow: 
+      0 8px 32px hsl(0 0% 0% / 0.3),
+      inset 0 1px 0 hsl(0 0% 100% / 0.1);
+  }
+
+  .liquid-glass-primary {
+    @apply rounded-3xl p-6;
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.12) 0%, 
+      hsl(var(--primary) / 0.06) 50%,
+      hsl(var(--primary) / 0.1) 100%
+    );
+    border: 1px solid hsl(var(--primary) / 0.2);
+    backdrop-filter: blur(40px) saturate(1.8);
+    box-shadow: 
+      0 8px 32px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(0 0% 100% / 0.5);
+  }
+
   /* Glass Card - White glassmorphism with subtle orange accent */
   .glass-card {
     @apply rounded-2xl border border-border/50 p-6;

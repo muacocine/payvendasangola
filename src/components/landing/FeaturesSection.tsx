@@ -36,8 +36,12 @@ const features = [
 
 export const FeaturesSection = () => {
   return (
-    <section className="py-24 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="py-24 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/30 to-background" />
+      <div className="absolute top-0 left-1/3 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -53,7 +57,7 @@ export const FeaturesSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -62,10 +66,11 @@ export const FeaturesSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white border border-border rounded-2xl p-6 hover:border-primary/30 hover:shadow-lg transition-all"
+                transition={{ delay: index * 0.08 }}
+                whileHover={{ y: -6, scale: 1.02 }}
+                className="liquid-glass !rounded-2xl hover:shadow-xl transition-shadow duration-300 cursor-default group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Icon className="text-primary" size={28} />
                 </div>
                 <h3 className="font-display text-xl font-semibold text-foreground mb-2">
