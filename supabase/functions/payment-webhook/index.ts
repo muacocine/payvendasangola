@@ -5,8 +5,8 @@
    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
  };
  
- const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
- const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+ const supabaseUrl = Deno.env.get("https://mmhkqovftvksmnchfnzu.supabase.co")!;
+ const supabaseServiceKey = Deno.env.get("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1taGtxb3ZmdHZrc21uY2hmbnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4OTUwNjcsImV4cCI6MjA4NTQ3MTA2N30.f-h4IunyPDGJQ1gWq-yNAWzF2wkWc38nBZp0WptskO0")!;
  const supabase = createClient(supabaseUrl, supabaseServiceKey);
  
  // PliqPag API configuration
