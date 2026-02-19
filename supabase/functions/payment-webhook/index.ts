@@ -11,8 +11,8 @@
  
  // PliqPag API configuration
  const PLIQPAG_API_URL = "https://api.plinqpay.com/v1";
- const PLIQPAG_API_KEY = Deno.env.get("PLIQPAG_API_KEY")!;
-const PLIQPAG_PUBLIC_KEY = Deno.env.get("PLIQPAG_PUBLIC_KEY") || "";
+ const PLIQPAG_API_KEY = Deno.env.get("sk_U0dR0gO/7OIloX3jG8aNadRMFw88Ob26acETmc0zpoPmmNvvfJuwqlVJr/hup7Ku")!;
+const PLIQPAG_PUBLIC_KEY = Deno.env.get("pk_83wqWNBxH7okXr6Rm6vzI2u4nSP0otn/MEKjoNxEgupk92OAuN5YyacYRaibcxFP") || "";
 const PLIQPAG_ENTITY = "01055";
 const PLIQPAG_REFERENCE = "503267937";
  
@@ -161,7 +161,7 @@ const PLIQPAG_REFERENCE = "503267937";
  
    // Validate withdrawal limits
    if (type === "withdrawal") {
-     if (amount < 500) return jsonResponse({ error: "Minimo: 500 AOA" }, 400);
+     if (amount < 50) return jsonResponse({ error: "Minimo: 50 AOA" }, 400);
      if (amount > 200000) return jsonResponse({ error: "Maximo: 200.000 AOA" }, 400);
      if ((profile.balance || 0) < amount) return jsonResponse({ error: "Saldo insuficiente" }, 400);
  
@@ -216,8 +216,7 @@ const PLIQPAG_REFERENCE = "503267937";
      method: "POST",
      headers: {
        "Content-Type": "application/json",
-       "api-key": PLIQPAG_API_KEY,
-       "x-entity-id": PLIQPAG_ENTITY,
+       "api-key": PLIQPAG_API_KEY,applicationentity-id": PLIQPAG_ENTITY,
        "x-reference": PLIQPAG_REFERENCE
      },
      body: JSON.stringify(pliqpagPayload)
