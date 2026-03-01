@@ -5,16 +5,16 @@
    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
  };
  
- const supabaseUrl = Deno.env.get("https://mmhkqovftvksmnchfnzu.supabase.co")!;
- const supabaseServiceKey = Deno.env.get("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1taGtxb3ZmdHZrc21uY2hmbnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4OTUwNjcsImV4cCI6MjA4NTQ3MTA2N30.f-h4IunyPDGJQ1gWq-yNAWzF2wkWc38nBZp0WptskO0")!;
+ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
  const supabase = createClient(supabaseUrl, supabaseServiceKey);
  
  // PliqPag API configuration
  const PLIQPAG_API_URL = "https://api.plinqpay.com/v1";
- const PLIQPAG_API_KEY = Deno.env.get("sk_U0dR0gO/7OIloX3jG8aNadRMFw88Ob26acETmc0zpoPmmNvvfJuwqlVJr/hup7Ku")!;
-const PLIQPAG_PUBLIC_KEY = Deno.env.get("pk_83wqWNBxH7okXr6Rm6vzI2u4nSP0otn/MEKjoNxEgupk92OAuN5YyacYRaibcxFP") || "";
-const PLIQPAG_ENTITY = "01055";
-const PLIQPAG_REFERENCE = "503267937";
+ const PLIQPAG_API_KEY = Deno.env.get("PLIQPAG_API_KEY")!;
+ const PLIQPAG_PUBLIC_KEY = Deno.env.get("PLIQPAG_PUBLIC_KEY") || "";
+ const PLIQPAG_ENTITY = "01055";
+ const PLIQPAG_REFERENCE = "503267937";
  
  interface PliqPagTransaction {
    externalId: string;
@@ -142,73 +142,75 @@ const PLIQPAG_REFERENCE = "503267937";
    const authHeader = req.headers.get("Authorization");
    if (!authHeader) return jsonResponse({ error: "Unauthorized" }, 401);
  
-   const { type, amount, phone } = body;
-   if (!type || !amount || !phone) return jsonResponse({ error: "Missing fields" }, 400);
+    const { type, amount, phone, name, email } = body;
+    if (!type || !amount || !phone) return jsonResponse({ error: "Missing fields" }, 400);
+    if (!name || !email) return jsonResponse({ error: "Nome e e-mail são obrigatórios" }, 400);
  
-   const token = authHeader.replace("Bearer ", "");
-   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-   if (authError || !user) return jsonResponse({ error: "Invalid token" }, 401);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return jsonResponse({ error: "Invalid token" }, 401);
  
-   const { data: profile } = await supabase
-     .from("profiles")
-     .select("*")
-     .eq("user_id", user.id)
-     .single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
  
-   if (!profile) return jsonResponse({ error: "Profile not found" }, 404);
-   if (profile.kyc_status !== "approved") return jsonResponse({ error: "KYC nao aprovado" }, 400);
-   if (!profile.wallet_activated) return jsonResponse({ error: "Carteira nao ativada" }, 400);
+    if (!profile) return jsonResponse({ error: "Profile not found" }, 404);
+    if (profile.kyc_status !== "approved") return jsonResponse({ error: "KYC nao aprovado" }, 400);
+    if (!profile.wallet_activated) return jsonResponse({ error: "Carteira nao ativada" }, 400);
  
-   // Validate withdrawal limits
-   if (type === "withdrawal") {
-     if (amount < 50) return jsonResponse({ error: "Minimo: 50 AOA" }, 400);
-     if (amount > 200000) return jsonResponse({ error: "Maximo: 200.000 AOA" }, 400);
-     if ((profile.balance || 0) < amount) return jsonResponse({ error: "Saldo insuficiente" }, 400);
+    // Validate withdrawal limits
+    if (type === "withdrawal") {
+      if (amount < 50) return jsonResponse({ error: "Minimo: 50 AOA" }, 400);
+      if (amount > 200000) return jsonResponse({ error: "Maximo: 200.000 AOA" }, 400);
+      if ((profile.balance || 0) < amount) return jsonResponse({ error: "Saldo insuficiente" }, 400);
  
-     // Deduct from balance
-     await supabase.from("profiles")
-       .update({ balance: (profile.balance || 0) - amount })
-       .eq("user_id", user.id);
-   }
+      // Deduct from balance
+      await supabase.from("profiles")
+        .update({ balance: (profile.balance || 0) - amount })
+        .eq("user_id", user.id);
+    }
  
-   if (type === "deposit" && amount < 100) return jsonResponse({ error: "Minimo: 100 AOA" }, 400);
+    if (type === "deposit" && amount < 100) return jsonResponse({ error: "Minimo: 100 AOA" }, 400);
  
-   // Create transaction
-   const { data: transaction, error: txError } = await supabase
-     .from("transactions")
-     .insert({
-       user_id: user.id,
-       type,
-       amount,
-       status: "pending",
-       method: "PayPay Africa",
-       description: `${type === "deposit" ? "Deposito" : "Levantamento"} - ${phone}`
-     })
-     .select()
-     .single();
+    // Create transaction
+    const { data: transaction, error: txError } = await supabase
+      .from("transactions")
+      .insert({
+        user_id: user.id,
+        type,
+        amount,
+        status: "pending",
+        method: "PliqPag",
+        description: `${type === "deposit" ? "Deposito" : "Levantamento"} - ${name} - ${phone}`
+      })
+      .select()
+      .single();
  
-   if (txError) {
-     console.error("Transaction error:", txError);
-     return jsonResponse({ error: "Erro ao criar transacao" }, 500);
-   }
+    if (txError) {
+      console.error("Transaction error:", txError);
+      return jsonResponse({ error: "Erro ao criar transacao" }, 500);
+    }
  
-   // Call PliqPag API
-   const pliqpagPayload: PliqPagTransaction = {
-     externalId: transaction.id,
-     callbackUrl: `${supabaseUrl}/functions/v1/payment-webhook/pliqpag-callback`,
-     method: type === "deposit" ? "REFERENCE" : "WALLET",
-     client: {
-       name: profile.full_name || "Cliente PayVendas",
-       email: user.email || "cliente@payvendas.ao",
-       phone: phone.startsWith("+244") ? phone : `+244${phone}`
-     },
-     items: [{
-       title: type === "deposit" ? "Deposito PayVendas" : "Levantamento PayVendas",
-       price: amount,
-       quantity: 1
-     }],
-     amount
-   };
+    // Call PliqPag API
+    const clientPhone = phone.startsWith("+244") ? phone : `+244${phone}`;
+    const pliqpagPayload: PliqPagTransaction = {
+      externalId: transaction.id,
+      callbackUrl: `${supabaseUrl}/functions/v1/payment-webhook/pliqpag-callback`,
+      method: type === "deposit" ? "REFERENCE" : "WALLET",
+      client: {
+        name: name,
+        email: email,
+        phone: clientPhone
+      },
+      items: [{
+        title: type === "deposit" ? "Deposito PayVendas" : "Levantamento PayVendas",
+        price: amount,
+        quantity: 1
+      }],
+      amount
+    };
  
    console.log("PliqPag request:", JSON.stringify(pliqpagPayload));
  
@@ -216,7 +218,8 @@ const PLIQPAG_REFERENCE = "503267937";
      method: "POST",
      headers: {
        "Content-Type": "application/json",
-       "api-key": PLIQPAG_API_KEY,applicationentity-id": PLIQPAG_ENTITY,
+        "api-key": PLIQPAG_API_KEY,
+        "entity-id": PLIQPAG_ENTITY,
        "x-reference": PLIQPAG_REFERENCE
      },
      body: JSON.stringify(pliqpagPayload)

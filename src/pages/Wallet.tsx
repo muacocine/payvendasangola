@@ -60,7 +60,17 @@ const Wallet = () => {
   const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS[0]);
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
   const [processing, setProcessing] = useState(false);
+
+  // Pre-fill client info when profile loads
+  useEffect(() => {
+    if (profile) {
+      setClientName(profile.full_name || "");
+      setPhoneNumber(profile.phone || "");
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (user) {
@@ -147,6 +157,16 @@ const Wallet = () => {
       return;
     }
 
+    if (!clientName || clientName.trim().length < 2) {
+      toast.error("Nome é obrigatório para o pagamento");
+      return;
+    }
+
+    if (!clientEmail || !clientEmail.includes("@")) {
+      toast.error("E-mail válido é obrigatório para o pagamento");
+      return;
+    }
+
     setProcessing(true);
 
     try {
@@ -162,7 +182,9 @@ const Wallet = () => {
           type: 'deposit',
           amount: depositAmount,
           method: selectedMethod.name,
-          phone: phoneNumber.startsWith('+244') ? phoneNumber : phoneNumber
+          phone: phoneNumber,
+          name: clientName.trim(),
+          email: clientEmail.trim()
         })
       });
       
@@ -191,7 +213,6 @@ const Wallet = () => {
 
       setShowDepositModal(false);
       setAmount("");
-      setPhoneNumber("");
       fetchTransactions();
     } catch (error: any) {
       toast.error(error.message || "Erro ao processar depósito");
@@ -221,6 +242,16 @@ const Wallet = () => {
 
     if (!phoneNumber || phoneNumber.length < 9) {
       toast.error("Número de telefone inválido");
+      return;
+    }
+
+    if (!clientName || clientName.trim().length < 2) {
+      toast.error("Nome é obrigatório para o pagamento");
+      return;
+    }
+
+    if (!clientEmail || !clientEmail.includes("@")) {
+      toast.error("E-mail válido é obrigatório para o pagamento");
       return;
     }
 
@@ -280,7 +311,9 @@ const Wallet = () => {
           type: 'withdrawal',
           amount: withdrawAmount,
           method: selectedMethod.name,
-          phone: phoneNumber
+          phone: phoneNumber,
+          name: clientName.trim(),
+          email: clientEmail.trim()
         })
       });
       
@@ -665,6 +698,28 @@ const Wallet = () => {
                 </div>
 
                 <div>
+                  <label className="text-sm text-muted-foreground block mb-1.5">Nome Completo</label>
+                  <Input
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Seu nome completo"
+                    className="bg-secondary border-border text-foreground"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1.5">E-mail</label>
+                  <Input
+                    type="email"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    className="bg-secondary border-border text-foreground"
+                  />
+                </div>
+
+                <div>
                   <label className="text-sm text-muted-foreground block mb-1.5">Valor (AOA)</label>
                   <Input
                     type="number"
@@ -751,6 +806,28 @@ const Wallet = () => {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1.5">Nome Completo</label>
+                  <Input
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Seu nome completo"
+                    className="bg-secondary border-border text-foreground"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1.5">E-mail</label>
+                  <Input
+                    type="email"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    className="bg-secondary border-border text-foreground"
+                  />
                 </div>
 
                 <div>
