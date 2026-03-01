@@ -216,12 +216,10 @@
  
    const pliqpagResponse = await fetch(`${PLIQPAG_API_URL}/transaction`, {
      method: "POST",
-     headers: {
-       "Content-Type": "application/json",
-        "api-key": PLIQPAG_API_KEY,
-        "entity-id": PLIQPAG_ENTITY,
-       "x-reference": PLIQPAG_REFERENCE
-     },
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": PLIQPAG_API_KEY
+      },
      body: JSON.stringify(pliqpagPayload)
    });
  
