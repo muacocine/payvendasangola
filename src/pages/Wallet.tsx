@@ -44,7 +44,7 @@ const PAYMENT_METHODS = [
   { id: 'paypay', name: 'PayPay África', icon: paypayLogo, color: 'bg-cyan-500/20' },
 ];
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
 
 const Wallet = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -64,13 +64,14 @@ const Wallet = () => {
   const [clientEmail, setClientEmail] = useState("");
   const [processing, setProcessing] = useState(false);
 
-  // Pre-fill client info when profile loads
+  // Pre-fill client info when profile/session loads
   useEffect(() => {
     if (profile) {
       setClientName(profile.full_name || "");
       setPhoneNumber(profile.phone || "");
+      setClientEmail(user?.email || "");
     }
-  }, [profile]);
+  }, [profile, user]);
 
   useEffect(() => {
     if (user) {
@@ -170,28 +171,24 @@ const Wallet = () => {
     setProcessing(true);
 
     try {
-      const { data: session } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/payment-webhook/initiate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke("payment-webhook", {
+        body: {
+          action: "initiate",
           type: 'deposit',
           amount: depositAmount,
           method: selectedMethod.name,
           phone: phoneNumber,
           name: clientName.trim(),
           email: clientEmail.trim()
-        })
+        }
       });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Erro ao processar depósito');
+
+      if (error) {
+        throw new Error(error.message || 'Erro ao processar depósito');
+      }
+
+      if (!result?.success) {
+        throw new Error(result?.error || 'Erro ao processar depósito');
       }
 
       toast.success(
@@ -299,28 +296,24 @@ const Wallet = () => {
     setProcessing(true);
 
     try {
-      const { data: session } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/payment-webhook/initiate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.session?.access_token}`
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke("payment-webhook", {
+        body: {
+          action: "initiate",
           type: 'withdrawal',
           amount: withdrawAmount,
           method: selectedMethod.name,
           phone: phoneNumber,
           name: clientName.trim(),
           email: clientEmail.trim()
-        })
+        }
       });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Erro ao processar levantamento');
+
+      if (error) {
+        throw new Error(error.message || 'Erro ao processar levantamento');
+      }
+
+      if (!result?.success) {
+        throw new Error(result?.error || 'Erro ao processar levantamento');
       }
 
       toast.success(
