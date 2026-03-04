@@ -5,16 +5,17 @@
    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
  };
  
- const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
- const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
- const supabase = createClient(supabaseUrl, supabaseServiceKey);
- 
- // PliqPag API configuration
- const PLIQPAG_API_URL = "https://api.plinqpay.com/v1";
- const PLIQPAG_API_KEY = Deno.env.get("PLIQPAG_API_KEY")!;
- const PLIQPAG_PUBLIC_KEY = Deno.env.get("PLIQPAG_PUBLIC_KEY") || "";
- const PLIQPAG_ENTITY = "01055";
- const PLIQPAG_REFERENCE = "503267937";
+const supabaseUrl = Deno.env.get("SUPABASE_URL");
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const supabase = supabaseUrl && supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  : null;
+
+// PlinqPay API configuration
+const PLIQPAG_API_URL = "https://api.plinqpay.com/v1";
+const PLIQPAG_API_KEY = Deno.env.get("PLIQPAG_API_KEY") || "";
+const PLIQPAG_PUBLIC_KEY = Deno.env.get("PLIQPAG_PUBLIC_KEY") || "";
+const PLIQPAG_ENTITY = "01055";
  
  interface PliqPagTransaction {
    externalId: string;
@@ -25,7 +26,96 @@
    amount: number;
  }
  
- Deno.serve(async (req) => {
+function getConfigError(requirePaymentKey = false) {
+  if (!supabase || !supabaseUrl || !supabaseServiceKey) {
+    console.error("Missing required backend secrets", {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceRole: !!supabaseServiceKey,
+    });
+    return jsonResponse({ error: "Erro de configuração do servidor" }, 500);
+  }
+
+  if (requirePaymentKey && !PLIQPAG_API_KEY) {
+    console.error("Missing PLIQPAG_API_KEY secret");
+    return jsonResponse({ error: "Chave de pagamento não configurada" }, 500);
+  }
+
+  return null;
+}
+
+function redactSensitiveData(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(redactSensitiveData);
+  }
+
+  if (value && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+
+    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+      const lowered = key.toLowerCase();
+      if (
+        lowered.includes("key") ||
+        lowered.includes("secret") ||
+        lowered.includes("token") ||
+        lowered === "authorization"
+      ) {
+        result[key] = "[REDACTED]";
+      } else {
+        result[key] = redactSensitiveData(nestedValue);
+      }
+    }
+
+    return result;
+  }
+
+  return value;
+}
+
+function toSafeMessage(value: unknown) {
+  if (typeof value === "string") return value;
+  try {
+    return JSON.stringify(redactSensitiveData(value));
+  } catch {
+    return "Erro desconhecido";
+  }
+}
+
+function normalizeCallbackStatus(payload: any): "completed" | "failed" | "pending" | "unknown" {
+  const raw = String(
+    payload?.status ??
+    payload?.paymentStatus ??
+    payload?.transaction?.status ??
+    payload?.data?.status ??
+    ""
+  ).toUpperCase();
+
+  if (["PAID", "SUCCESS", "COMPLETED", "APPROVED"].includes(raw)) return "completed";
+  if (["EXPIRED", "CANCELLED", "CANCELED", "FAILED", "ERROR", "DECLINED"].includes(raw)) return "failed";
+  if (["PENDING", "PROCESSING", "WAITING"].includes(raw)) return "pending";
+
+  return "unknown";
+}
+
+function extractExternalId(payload: any): string | null {
+  return (
+    payload?.externalId ??
+    payload?.transaction?.externalId ??
+    payload?.data?.externalId ??
+    null
+  );
+}
+
+function extractProviderReference(payload: any): string | null {
+  return (
+    payload?.reference ??
+    payload?.transaction?.reference ??
+    payload?.data?.reference ??
+    payload?.id ??
+    null
+  );
+}
+
+Deno.serve(async (req) => {
    if (req.method === "OPTIONS") {
      return new Response(null, { headers: corsHeaders });
    }
@@ -75,80 +165,121 @@
    });
  }
  
- async function handlePliqpagCallback(req: Request) {
-   const payload = await req.json();
-   console.log("PliqPag callback:", JSON.stringify(payload));
- 
-   const { data: transaction } = await supabase
-     .from("transactions")
-     .select("*")
-     .eq("id", payload.externalId)
-     .single();
- 
-   if (!transaction) return jsonResponse({ error: "Transaction not found" }, 404);
- 
-   const { data: profile } = await supabase
-     .from("profiles")
-     .select("*")
-     .eq("user_id", transaction.user_id)
-     .single();
- 
-   if (!profile) return jsonResponse({ error: "Profile not found" }, 404);
- 
-   if (payload.status === "PAID") {
-     await supabase.from("transactions")
-       .update({ status: "completed", description: `${transaction.description} - PliqPag: ${payload.id}` })
-       .eq("id", transaction.id);
- 
-     if (transaction.type === "deposit") {
-       await supabase.from("profiles")
-         .update({ balance: (profile.balance || 0) + transaction.amount })
-         .eq("user_id", transaction.user_id);
- 
-       await supabase.from("notifications").insert({
-         user_id: transaction.user_id,
-         type: "deposit",
-         title: "Deposito Confirmado",
-         message: `Deposito de ${transaction.amount.toLocaleString()} AOA confirmado!`
-       });
-     }
- 
-     return jsonResponse({ success: true, message: "Payment confirmed" });
-   }
- 
-   if (payload.status === "EXPIRED" || payload.status === "CANCELLED") {
-     await supabase.from("transactions")
-       .update({ status: "failed", description: `${transaction.description} - ${payload.status}` })
-       .eq("id", transaction.id);
- 
-     if (transaction.type === "withdrawal") {
-       await supabase.from("profiles")
-         .update({ balance: (profile.balance || 0) + transaction.amount })
-         .eq("user_id", transaction.user_id);
-     }
- 
-     return jsonResponse({ success: true, message: "Payment cancelled" });
-   }
- 
-   return jsonResponse({ success: true });
- }
+async function handlePliqpagCallback(req: Request) {
+  const configError = getConfigError();
+  if (configError) return configError;
+
+  const payload = await req.json();
+  const safePayload = redactSensitiveData(payload);
+  console.log("PliqPag callback:", JSON.stringify(safePayload));
+
+  const externalId = extractExternalId(payload);
+  if (!externalId) {
+    return jsonResponse({ error: "externalId ausente no callback" }, 400);
+  }
+
+  const { data: transaction } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("id", externalId)
+    .single();
+
+  if (!transaction) return jsonResponse({ error: "Transaction not found" }, 404);
+
+  const status = normalizeCallbackStatus(payload);
+  const providerReference = extractProviderReference(payload);
+
+  if (status === "unknown") {
+    await supabase.from("transactions")
+      .update({ description: `${transaction.description || ""} - Callback sem status reconhecido` })
+      .eq("id", transaction.id);
+
+    return jsonResponse({ success: true, message: "Callback recebido" });
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", transaction.user_id)
+    .single();
+
+  if (!profile) return jsonResponse({ error: "Profile not found" }, 404);
+
+  if (status === "completed") {
+    if (transaction.status !== "completed") {
+      await supabase.from("transactions")
+        .update({
+          status: "completed",
+          description: `${transaction.description || ""} - PliqPag: ${providerReference || "sem-ref"}`
+        })
+        .eq("id", transaction.id);
+
+      if (transaction.type === "deposit") {
+        await supabase.from("profiles")
+          .update({ balance: (profile.balance || 0) + transaction.amount })
+          .eq("user_id", transaction.user_id);
+
+        await supabase.from("notifications").insert({
+          user_id: transaction.user_id,
+          type: "deposit",
+          title: "Depósito Confirmado",
+          message: `Depósito de ${transaction.amount.toLocaleString()} AOA confirmado!`
+        });
+      }
+    }
+
+    return jsonResponse({ success: true, message: "Payment confirmed" });
+  }
+
+  if (status === "failed") {
+    if (transaction.status !== "failed") {
+      await supabase.from("transactions")
+        .update({
+          status: "failed",
+          description: `${transaction.description || ""} - ${String(payload?.status || "FAILED").toUpperCase()}`
+        })
+        .eq("id", transaction.id);
+
+      // Refund only once if withdrawal was already debited while pending
+      if (transaction.type === "withdrawal" && transaction.status === "pending") {
+        await supabase.from("profiles")
+          .update({ balance: (profile.balance || 0) + transaction.amount })
+          .eq("user_id", transaction.user_id);
+      }
+    }
+
+    return jsonResponse({ success: true, message: "Payment failed/cancelled" });
+  }
+
+  await supabase.from("transactions")
+    .update({
+      status: "pending",
+      description: `${transaction.description || ""} - Status: ${String(payload?.status || "PENDING")}`
+    })
+    .eq("id", transaction.id);
+
+  return jsonResponse({ success: true, message: "Payment pending" });
+}
  
  async function handleInitiate(req: Request) {
    const body = await req.json();
    return handleInitiateWithBody(req, body);
  }
  
- async function handleInitiateWithBody(req: Request, body: any) {
-   const authHeader = req.headers.get("Authorization");
-   if (!authHeader) return jsonResponse({ error: "Unauthorized" }, 401);
- 
-    const { type, amount, phone, name, email } = body;
-    if (!type || !amount || !phone) return jsonResponse({ error: "Missing fields" }, 400);
-    if (!name || !email) return jsonResponse({ error: "Nome e e-mail são obrigatórios" }, 400);
- 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return jsonResponse({ error: "Invalid token" }, 401);
+async function handleInitiateWithBody(req: Request, body: any) {
+  const configError = getConfigError(true);
+  if (configError) return configError;
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return jsonResponse({ error: "Unauthorized" }, 401);
+
+   const { type, amount, phone, name, email } = body;
+   if (!type || !amount || !phone) return jsonResponse({ error: "Missing fields" }, 400);
+   if (!name || !email) return jsonResponse({ error: "Nome e e-mail são obrigatórios" }, 400);
+
+   const token = authHeader.replace("Bearer ", "");
+   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+   if (authError || !user) return jsonResponse({ error: "Invalid token" }, 401);
  
     const { data: profile } = await supabase
       .from("profiles")
@@ -212,8 +343,8 @@
       amount
     };
  
-   console.log("PliqPag request:", JSON.stringify(pliqpagPayload));
- 
+   console.log("PliqPag request:", JSON.stringify(redactSensitiveData(pliqpagPayload)));
+
    const pliqpagResponse = await fetch(`${PLIQPAG_API_URL}/transaction`, {
      method: "POST",
       headers: {
@@ -222,37 +353,58 @@
       },
      body: JSON.stringify(pliqpagPayload)
    });
- 
-   const pliqpagResult = await pliqpagResponse.json();
-   console.log("PliqPag response:", JSON.stringify(pliqpagResult));
- 
+
+   const responseText = await pliqpagResponse.text();
+   const contentType = pliqpagResponse.headers.get("content-type") || "";
+   let pliqpagResult: any = {};
+
+   if (responseText) {
+     if (contentType.includes("application/json") || responseText.trim().startsWith("{") || responseText.trim().startsWith("[")) {
+       try {
+         pliqpagResult = JSON.parse(responseText);
+       } catch {
+         pliqpagResult = { message: responseText };
+       }
+     } else {
+       pliqpagResult = { message: responseText };
+     }
+   }
+
+   console.log("PliqPag response:", JSON.stringify(redactSensitiveData(pliqpagResult)));
+
    if (!pliqpagResponse.ok) {
+     const safeError = redactSensitiveData(pliqpagResult);
+
      await supabase.from("transactions")
-       .update({ status: "failed", description: `Erro PliqPag: ${JSON.stringify(pliqpagResult)}` })
+       .update({ status: "failed", description: `Erro PliqPag: ${toSafeMessage(safeError)}` })
        .eq("id", transaction.id);
- 
+
      if (type === "withdrawal") {
        await supabase.from("profiles")
          .update({ balance: profile.balance || 0 })
          .eq("user_id", user.id);
      }
- 
-     return jsonResponse({ error: pliqpagResult.message || "Erro PliqPag" }, 400);
+
+     return jsonResponse({ error: (safeError as any)?.message || `Erro PliqPag (${pliqpagResponse.status})` }, 400);
    }
- 
+
+   const providerReference = pliqpagResult.reference || pliqpagResult.id || transaction.id;
+   const providerEntity = pliqpagResult.entity || PLIQPAG_ENTITY;
+
    await supabase.from("transactions")
-     .update({ description: `${transaction.description} - Ref: ${pliqpagResult.reference || pliqpagResult.id}` })
+     .update({ description: `${transaction.description} - Ref: ${providerReference}` })
      .eq("id", transaction.id);
- 
+
     return jsonResponse({
       success: true,
       transaction_id: transaction.id,
-      reference: pliqpagResult.reference || pliqpagResult.id,
-      entity: PLIQPAG_ENTITY,
-      payment_url: pliqpagResult.paymentUrl,
+      reference: providerReference,
+      entity: providerEntity,
+      payment_url: pliqpagResult.paymentUrl || pliqpagResult.payment_url,
+      deep_link: pliqpagResult.deepLink || pliqpagResult.deep_link,
       instructions: type === "deposit"
-        ? `Entidade: ${PLIQPAG_ENTITY}\nReferência: ${pliqpagResult.reference || pliqpagResult.id}\nValor: ${amount} AOA\n\nUse estes dados no Multicaixa Express ou PayPay África para concluir o pagamento.`
-        : `Levantamento de ${amount} AOA sera enviado para ${phone}`
+        ? `Entidade: ${providerEntity}\nReferência: ${providerReference}\nValor: ${amount} AOA\n\nUse estes dados no Multicaixa Express ou PayPay África para concluir o pagamento.`
+        : `Levantamento de ${amount} AOA será enviado para ${phone}`
     });
  }
  
