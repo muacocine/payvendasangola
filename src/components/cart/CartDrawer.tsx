@@ -2,10 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, ShoppingBag, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -13,111 +10,12 @@ interface CartDrawerProps {
 }
 
 export const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
-  const { items, removeItem, updateQuantity, clearCart, total } = useCart();
-  const { user, profile, refreshProfile } = useAuth();
-  const [processing, setProcessing] = useState(false);
+  const { items, removeItem, updateQuantity, total } = useCart();
+  const navigate = useNavigate();
 
-  const handleCheckout = async () => {
-    if (!user || !profile) {
-      toast.error("Faça login para finalizar a compra");
-      return;
-    }
-
-    if (!profile.wallet_activated) {
-      toast.error("Ative sua carteira para comprar");
-      return;
-    }
-
-    // Only real balance can be used for purchases (exclude bonus)
-    const realBalance = (profile.balance || 0) - (profile.bonus_balance || 0);
-    if (realBalance < total) {
-      toast.error("Saldo real insuficiente. O saldo de bônus não pode ser usado para compras de produtos.");
-      return;
-    }
-
-    setProcessing(true);
-
-    try {
-      // Process each item
-      for (const item of items) {
-        // Get product details
-        const { data: product } = await supabase
-          .from('pdf_products')
-          .select('*')
-          .eq('id', item.id)
-          .single();
-
-        if (!product) continue;
-
-        // Create purchase record
-        await supabase.from('pdf_purchases').insert({
-          user_id: user.id,
-          product_id: item.id,
-          amount: item.price
-        });
-
-        // Update downloads count
-        await supabase.from('pdf_products')
-          .update({ downloads_count: (product.downloads_count || 0) + 1 })
-          .eq('id', item.id);
-
-        // Credit seller (85% for seller, 15% platform fee)
-        const { data: sellerProfile } = await supabase
-          .from('profiles')
-          .select('balance')
-          .eq('user_id', product.user_id)
-          .single();
-
-        if (sellerProfile) {
-          await supabase.from('profiles')
-            .update({ balance: (sellerProfile.balance || 0) + item.price * 0.85 })
-            .eq('user_id', product.user_id);
-        }
-
-        // Create transaction record
-        await supabase.from('transactions').insert({
-          user_id: user.id,
-          type: 'pdf_purchase',
-          amount: item.price,
-          status: 'completed',
-          method: 'PayVendas',
-          description: `Compra: ${item.title}`
-        });
-
-        // Download PDF locally
-        if (product.file_url) {
-          try {
-            const response = await fetch(product.file_url);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${item.title}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-          } catch {
-            window.open(product.file_url, '_blank');
-          }
-        }
-      }
-
-      // Deduct total from user balance
-      await supabase.from('profiles')
-        .update({ balance: (profile.balance || 0) - total })
-        .eq('user_id', user.id);
-
-      toast.success("Compra realizada com sucesso! Downloads iniciados.");
-      clearCart();
-      refreshProfile();
-      onClose();
-    } catch (error: any) {
-      toast.error("Erro ao processar compra");
-      console.error(error);
-    } finally {
-      setProcessing(false);
-    }
+  const handleCheckout = () => {
+    onClose();
+    navigate("/checkout");
   };
 
   return (
@@ -225,14 +123,13 @@ export const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                 
                 <Button
                   onClick={handleCheckout}
-                  disabled={processing}
-                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg"
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg rounded-xl"
                 >
-                  {processing ? "Processando..." : "Finalizar Compra"}
+                  Finalizar Compra
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  O valor será debitado do seu saldo PayVendas
+                  Pagamento por referência bancária
                 </p>
               </div>
             )}
