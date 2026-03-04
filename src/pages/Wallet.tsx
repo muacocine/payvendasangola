@@ -16,7 +16,8 @@ import {
   Lock,
   X,
   Smartphone,
-  Banknote
+  Banknote,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +25,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import payvendasLogo from "@/assets/payvendas-logo.png";
-import paypayLogo from "@/assets/paypay-logo.webp";
-import multicaixaLogo from "@/assets/multicaixa-logo.webp";
 import pliqpagLogo from "@/assets/pliqpag-logo.png";
 
 interface Transaction {
@@ -37,12 +36,6 @@ interface Transaction {
   created_at: string;
   description: string | null;
 }
-
-const PAYMENT_METHODS = [
-  { id: 'pliqpag', name: 'PliqPag (Referência)', icon: pliqpagLogo, color: 'bg-emerald-500/20' },
-  { id: 'multicaixa', name: 'Multicaixa Express', icon: multicaixaLogo, color: 'bg-orange-500/20' },
-  { id: 'paypay', name: 'PayPay África', icon: paypayLogo, color: 'bg-cyan-500/20' },
-];
 
 
 
@@ -57,7 +50,6 @@ const Wallet = () => {
   // Deposit/Withdraw modals
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS[0]);
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [clientName, setClientName] = useState("");
@@ -176,7 +168,7 @@ const Wallet = () => {
           action: "initiate",
           type: 'deposit',
           amount: depositAmount,
-          method: selectedMethod.name,
+           method: 'Referência PlinqPay',
           phone: phoneNumber,
           name: clientName.trim(),
           email: clientEmail.trim()
@@ -301,7 +293,7 @@ const Wallet = () => {
           action: "initiate",
           type: 'withdrawal',
           amount: withdrawAmount,
-          method: selectedMethod.name,
+          method: 'PlinqPay Email',
           phone: phoneNumber,
           name: clientName.trim(),
           email: clientEmail.trim()
@@ -668,25 +660,13 @@ const Wallet = () => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-muted-foreground block mb-2">Método de Pagamento</label>
-                  <div className="space-y-2">
-                    {PAYMENT_METHODS.map((method) => (
-                      <button
-                        key={method.id}
-                        onClick={() => setSelectedMethod(method)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                          selectedMethod.id === method.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                      >
-                        <div className={`w-10 h-10 rounded-lg ${method.color} flex items-center justify-center p-1.5`}>
-                          <img src={method.icon} alt={method.name} className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-foreground font-medium">{method.name}</span>
-                      </button>
-                    ))}
+                <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary bg-primary/5">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center p-1.5">
+                    <img src={pliqpagLogo} alt="PlinqPay" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <span className="text-foreground font-medium block">Pagamento por Referência</span>
+                    <span className="text-xs text-muted-foreground">Multicaixa Express / PayPay África</span>
                   </div>
                 </div>
 
@@ -779,25 +759,13 @@ const Wallet = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-sm text-muted-foreground block mb-2">Método de Pagamento</label>
-                  <div className="space-y-2">
-                    {PAYMENT_METHODS.map((method) => (
-                      <button
-                        key={method.id}
-                        onClick={() => setSelectedMethod(method)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                          selectedMethod.id === method.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                      >
-                        <div className={`w-10 h-10 rounded-lg ${method.color} flex items-center justify-center p-1.5`}>
-                          <img src={method.icon} alt={method.name} className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-foreground font-medium">{method.name}</span>
-                      </button>
-                    ))}
+                <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary bg-primary/5">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center p-1.5">
+                    <img src={pliqpagLogo} alt="PlinqPay" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <span className="text-foreground font-medium block">PlinqPay Email</span>
+                    <span className="text-xs text-muted-foreground">Saldo enviado para sua conta PlinqPay</span>
                   </div>
                 </div>
 
